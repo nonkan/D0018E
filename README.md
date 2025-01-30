@@ -7,3 +7,8 @@ Database schema & use-case diagram: Define how the database will be setup. ![ima
 Define a Use-case diagram for when a product is ordered to when it is purchased.
 
 Retailer module: Works as an administrator and is the only one who can modify the webpage. Can see whats in the database/stock at all times. Is the one that sells to the customer. When a product is sold it is removed
+
+
+Step1: install python flask in terminal: python3 -m pip install flask
+step2: install psycopg2 module (which is needed to connect Flask to PostgreSQL):
+pip install psycopg2-binary
