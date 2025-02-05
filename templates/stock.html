@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Results</title>
+</head>
+<body>
+    <h1>Cap E-shop Stock</h1>
+    <table border="1">
+        <tr>
+            <th>item_id</th>
+            <th>amount</th>
+            <th>color</th>
+            <th>model</th>
+            <th>price</th>
+            <th>order_id</th>
+            <th>customer</th>
+        </tr>
+        {% for row in results %}
+        <tr>
+            {% for item in row %}
+            <td>{{ item }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
