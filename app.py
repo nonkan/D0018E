@@ -15,7 +15,7 @@ def connect_db():
 
 @app.route('/')
 def home():
-    return "Flask app with PostgreSQL running on Mac!"
+    return "Hello, World!"
 
 if __name__ == '__main__':
     app.run(debug=True)
