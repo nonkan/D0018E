@@ -73,5 +73,34 @@ def insert():
     # Return a success message as a JSON response
     return jsonify({"message": "inserted"})
 
+
+@app.route('/create_table')
+def create_table():
+    conn = connect_db()
+    cur = conn.cursor()
+    table = "CREATE TABLE test (item_ID VARCHAR(255), amount VARCHAR(255), color VARCHAR(255), model VARCHAR(255), price VARCHAR(255), order_ID VARCHAR(255), customer VARCHAR(255))" 
+    cur.execute(table)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    #
+    return render_template('index.html')
+    #return jsonify({"message": "Created Stock"})
+
+@app.route('/drop_table')
+def drop_table():
+    conn = connect_db()
+    cur = conn.cursor()
+    drop = "DROP TABLE test" 
+    cur.execute(drop)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    #
+    return render_template('index.html')
+    #return jsonify({"message": "Removed Stock"})
+
 if __name__ == '__main__':
     app.run(debug=True)
