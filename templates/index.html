@@ -7,7 +7,56 @@
 </head>
 <body>
     <h1>Welcome to ...</h1>
-    <form action="{{url_for('button_clicked')}}" method="get">
-        <button type="submit">insert</button>
+    
+    <form id="insertForm">
+        <label for = "item_ID">Item ID:</label>
+        <input type = "text" id = "item_ID" name = "item_ID" required><br>
+    
+        <label for = "amount">Amount:</label>
+        <input type = "text" id = "amount" name = "amount" required><br>
+    
+        <label for = "color">Color:</label>
+        <input type = "text" id = "color" name = "color" required><br>
+    
+        <label for = "model">Model:</label>
+        <input type = "text" id = "model" name = "model" required><br>
+    
+        <label for = "price">Price:</label>
+        <input type = "text" id = "price" name = "price" required><br>
+    
+        <label for = "order_ID">Order ID:</label>
+        <input type = "text" id ="order_ID" name = "order_ID" required><br>
+    
+        <label for = "customer">Customer:</label>
+        <input type = "text" id = "customer" name = "customer" required><br><br>
+    
+        <button type = "submit">Insert</button>
+  </form>
+
+    <form action = "{{url_for('show_stock')}}" method = "get">
+        <button type = "submit">Stock</button>
+    </form>
+
+  <p id = "message"></p>
+
+  <script>
+    document.getElementById('insertForm').addEventListener('submit', function(event) {
+      event.preventDefault();  // Prevent form from submitting normally
+
+      const formData = new FormData(this);
+      fetch('/insert', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('message').innerText = data.message;  // Show success message
+        this.reset();  // Reset the form fields
+      })
+      .catch(error => {
+        document.getElementById('message').innerText = 'Error: ' + error;
+      });
+    });
+  </script>
 </body>
 </html>
