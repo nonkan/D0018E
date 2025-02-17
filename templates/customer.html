@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" context="width=device-width, initial-scale=1.0">
+    <title>Customer</title>
+</head>
+<body>
+    <h1>Customer</h1>
+
+  
+    <h3>Paths to other modules</h3>
+    <form action = "{{url_for('goto_retailer')}}" method = "get">
+        <button type = "submit">Retailer</button>
+    </form>
+    
+    <form action = "{{url_for('goto_producer')}}" method = "get">
+        <button type = "submit">Producer</button>
+    </form>
+    
+    <form action = "{{url_for('goto_designer')}}" method = "get">
+        <button type = "submit">Designer</button>
+    </form>
+</body>
+</html>

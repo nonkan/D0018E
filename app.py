@@ -3,6 +3,7 @@ import psycopg2
 
 app = Flask(__name__)
 
+#   Database setup for retailers database
 def connect_db():
     conn = psycopg2.connect(
         dbname="d0018e_retailer",
@@ -13,18 +14,12 @@ def connect_db():
     )
     return conn
 
+
+#   This routes is called upon when program is run
 @app.route('/')
 def home():
-    #for database testing
-    #conn = connect_db()
-    #cur = conn.cursor()
-    #cur.execute("CREATE TABLE test (id INT)")
-    #cur.execute("DROP TABLE test")
-    #conn.commit()
-    #cur.close()
-    #conn.close()
-    #return "Startsida"
-    return render_template('index.html')
+    return render_template('retailer.html')
+
 
 @app.route('/show_stock')
 def show_stock():
@@ -49,7 +44,6 @@ def show_stock():
 
 @app.route('/insert', methods=['POST'])
 def insert():
-    item_ID = request.form['item_ID']
     amount = request.form['amount']
     color = request.form['color']
     model = request.form['model']
@@ -61,10 +55,10 @@ def insert():
     cur = conn.cursor()
     
     insert_query = """
-        INSERT INTO test (item_ID, amount, color, model, price, order_ID, customer)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO test (amount, color, model, price, order_ID, customer)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
-    cur.execute(insert_query, (item_ID, amount, color, model, price, order_ID, customer))
+    cur.execute(insert_query, (amount, color, model, price, order_ID, customer))
 
     conn.commit()
     cur.close()
@@ -78,14 +72,14 @@ def insert():
 def create_table():
     conn = connect_db()
     cur = conn.cursor()
-    table = "CREATE TABLE test (item_ID VARCHAR(255), amount VARCHAR(255), color VARCHAR(255), model VARCHAR(255), price VARCHAR(255), order_ID VARCHAR(255), customer VARCHAR(255))" 
+    table = "CREATE TABLE test (item_ID SERIAL PRIMARY KEY, amount VARCHAR(255), color VARCHAR(255), model VARCHAR(255), price VARCHAR(255), order_ID VARCHAR(255), customer VARCHAR(255))" 
     cur.execute(table)
     conn.commit()
     cur.close()
     conn.close()
 
     #
-    return render_template('index.html')
+    return render_template('retailer.html')
     #return jsonify({"message": "Created Stock"})
 
 @app.route('/drop_table')
@@ -99,8 +93,28 @@ def drop_table():
     conn.close()
 
     #
-    return render_template('index.html')
+    return render_template('retailer.html')
     #return jsonify({"message": "Removed Stock"})
+
+#-------------------------------routes between modules------------------------------------
+
+@app.route('/goto_customer')
+def goto_customer():
+    return render_template('customer.html')
+
+@app.route('/goto_producer')
+def goto_producer():
+    return render_template('producer.html')
+
+@app.route('/goto_designer')
+def goto_designer():
+    return render_template('designer.html')
+
+@app.route('/goto_retailer')
+def goto_retailer():
+    return render_template('retailer.html')
+
+#-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
