@@ -1,0 +1,14 @@
+[
+    {
+        "place_in_shoppingcart" : 1,
+        "order_id" :1,
+        "Item_id" :1,
+        "amount" :1,
+        "color" :"Black",
+        "model" :"Bl",
+        "price" :200,
+        "customer" :"A",
+        "image" : "cap.black1.png"
+    }
+]
+

@@ -3,7 +3,7 @@ import psycopg2
 
 app = Flask(__name__)
 
-#   Database setup for retailers database
+#   Database setup
 def connect_db():
     conn = psycopg2.connect(
         dbname="d0018e_db",
@@ -14,85 +14,88 @@ def connect_db():
     )
     return conn
 
-
-#   This routes is called upon when program is run
+#   Home page for customer
 @app.route('/')
 def home():
-    return render_template('retailer.html')
+    return render_template('customer.html')
 
 
-@app.route('/show_stock')
-def show_stock():
+@app.route('/show_cart')
+def show_cart():
     conn = connect_db()
     cur = conn.cursor()
-    stock = "SELECT * FROM test"
-    cur.execute(stock)
+    query = "SELECT * FROM customer"
+    cur.execute(query)
     results = cur.fetchall()
     
-    #prints out in terminal
-    #for row in cur.fetchall():
-    #    print (row, '\n')
     
     conn.commit()
     cur.close()
     conn.close()
 
     #prints out on webpage stock.html
-    return render_template('stock.html', results=results)
+    return render_template('customer.html', results=results)
     #return ".."
 
-
-@app.route('/insert', methods=['POST'])
+@app.route('/add_to_cart', methods=['POST'])
 def insert():
+    item_id = request.form['item_id']
     amount = request.form['amount']
     color = request.form['color']
     model = request.form['model']
     price = request.form['price']
-    order_ID = request.form['order_ID']
+    order_id = request.form['order_id']
     customer = request.form['customer']
 
     conn = connect_db()
     cur = conn.cursor()
     
     insert_query = """
-        INSERT INTO test (amount, color, model, price, order_ID, customer)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO shopping_cart (item_id, amount, color, model, price, order_id, customer)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
-    cur.execute(insert_query, (amount, color, model, price, order_ID, customer))
+    cur.execute(insert_query, (item_id, amount, color, model, price, order_id, customer))
 
     conn.commit()
     cur.close()
     conn.close()
 
-    # Return a success message as a JSON response
-    return jsonify({"message": "inserted"})
+    return jsonify({"message": "Item added to cart!"})
 
 
-@app.route('/create_product_table')
-def create_product_table():
+@app.route('/create_cart_table')
+def create_cart_table():
     conn = connect_db()
     cur = conn.cursor()
-    table = "CREATE TABLE IF NOT EXIST products (item_ID SERIAL PRIMARY KEY, amount VARCHAR(255), color VARCHAR(255), model VARCHAR(255), price VARCHAR(255), order_ID VARCHAR(255), customer VARCHAR(255))" 
-    cur.execute(table)
+    create_table_query = """
+        CREATE TABLE shopping_cart (
+            shopping_cart_id SERIAL PRIMARY KEY,
+            item_id INT REFERENCES test(item_id),
+            amount VARCHAR(255),
+            color VARCHAR(255),
+            model VARCHAR(255),
+            price VARCHAR(255),
+            order_id VARCHAR(255),
+            customer VARCHAR(255)
+        )
+    """
+    cur.execute(create_table_query)
     conn.commit()
     cur.close()
     conn.close()
 
-    return jsonify({"message": "Product table created successfully"})
+    return jsonify({"message": "Shopping cart table created!"})
 
-@app.route('/drop_table')
-def drop_table():
+@app.route('/drop_cart_table')
+def drop_cart_table():
     conn = connect_db()
     cur = conn.cursor()
-    drop = "DROP TABLE test" 
-    cur.execute(drop)
+    cur.execute("DROP TABLE shopping_cart")
     conn.commit()
     cur.close()
     conn.close()
 
-    #
-    return render_template('retailer.html')
-    #return jsonify({"message": "Removed Stock"})
+    return jsonify({"message": "Shopping cart table deleted!"})
 
 #-------------------------------routes between modules------------------------------------
 
@@ -112,6 +115,8 @@ def goto_designer():
 def goto_retailer():
     return render_template('retailer.html')
 
+
+#-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
