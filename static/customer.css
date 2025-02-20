@@ -38,66 +38,12 @@ header{
     right: -20px; 
 }
 /*NoCap title*/
-/*
-.title{
-    font-size: 60px;
-    padding: 10px;
-    margin: 50;
-    font-weight: 800;
-    font-stretch: absolute;
-}
 .title{
     font-size: xx-large;
-}
-
-.listProduct .item img{
-    width: 90%;
-    filter: drop-shadow(0 50px 20px #0009);
-}
-
-.listProduct{
-    display: grid;
-    grid-template-columns: repeat(4 1fr);
-    gap: 20px;
-}
-
-.listProduct .item{
-    background-color: rgb(247, 245, 244);
-    padding: 20px;
-    border-radius: 20px;
-}
-     
-.listProduct .item h2{
-    font-weight: 600;
-    font-size: large;
-}
-.listProduct .item .price{
-    letter-spacing: 5px;
-    font-size: medium;
-}
-    
-
-.listProduct .item button{
-    background-color: darkslategrey;
-    color: azure;
-    padding: 10px 15px;
-    border-radius: 20px;
-    margin-top: 10px;
-    border: none;
-    cursor: pointer;
-}
-*/
-
-.title{
-    font-size: 60px;
     padding: 10px;
-    margin: 50;
-    font-weight: 800;
-    font-stretch: absolute;
+    margin: 50px
 }
-.title{
-    font-size: xx-large;
-}
+
 .listProduct .item img{
     width: 90%;
     filter: drop-shadow(0 50px 20px #0009);
@@ -108,12 +54,12 @@ header{
     gap: 20px;
 }
 .listProduct .item{
-    background-color: #EEEEE6;
+    background-color: rgb(247, 245, 244);
     padding: 20px;
     border-radius: 20px;
 }
 .listProduct .item h2{
-    font-weight: 500;
+    font-weight: 600;
     font-size: large;
 }
 .listProduct .item .price{
@@ -208,17 +154,8 @@ body.showCart .customer{
 .listCart::-webkit-scrollbar{
     width: 0;
 }
-
 @media only screen and (max-width: 992px) {
     .listProduct{
         grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-
-/* mobile */
-@media only screen and (max-width: 768px) {
-    .listProduct{
-        grid-template-columns: repeat(2, 1fr);
     }
 }

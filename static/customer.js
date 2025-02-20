@@ -54,7 +54,6 @@ const addDataToHTML = () => {
                 let newProduct = document.createElement('div');
                 newProduct.dataset.id = product.id;
                 newProduct.classList.add('item');
-                newProduct.dataset.id = product.id;
                 newProduct.innerHTML = `
                     <img src="${product.image}" alt="">
                     <h2>${product.name}</h2>
