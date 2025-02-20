@@ -5,6 +5,7 @@ let body = document.querySelector('body'); //Shopping cart window to appear
 let listProductHTML = document.querySelector('.listProduct');
 let listCartHTML = document.querySelector('.listCart');
 let iconCartSpan = document.querySelector('.icon-cart span');
+let checkout = document.querySelector('.checkout');
 
 let listProducts = [];
 let carts = [];
@@ -17,6 +18,30 @@ iconCart.addEventListener('click', () => {
 closeCart.addEventListener('click', () => {
     body.classList.toggle('showCart')
 })
+/*
+checkout.addEventListener('click', (event) =>{
+    let positionClick = event.target;
+    if(positionClick.classList.contains('checkout')){
+        alert('1');
+    }
+})*/
+/*
+checkout.addEventListener('click', (event) => {
+    let positionClick = event.target;
+    if (positionClick.classList.contains('checkout')) {
+        window.location.href = "http://127.0.0.1:5000/goto_designer";
+    }
+});
+*/
+/*
+checkout.addEventListener('click', (event) => {
+    let positionClick = event.target;
+    if (positionClick.classList.contains('checkout')) {
+        window.location.href = "{{ url_for('goto_designer') }}"; // Redirect to designer page
+    }
+});
+*/
+
 
 const addDataToHTML = () => {
     // remove datas default from HTML
