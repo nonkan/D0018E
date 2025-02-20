@@ -43,17 +43,16 @@ def insert():
     color = request.form['color']
     model = request.form['model']
     price = request.form['price']
-    order_ID = request.form['order_ID']
     customer = request.form['customer']
 
     conn = connect_db()
     cur = conn.cursor()
     
     insert_query = """
-        INSERT INTO retailer (amount, color, model, price, order_ID, customer)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO retailer (amount, color, model, price, customer)
+        VALUES (%s, %s, %s, %s, %s)
     """
-    cur.execute(insert_query, (amount, color, model, price, order_ID, customer))
+    cur.execute(insert_query, (amount, color, model, price, customer))
 
     conn.commit()
     cur.close()
