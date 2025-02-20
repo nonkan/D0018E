@@ -1,14 +1,39 @@
 [
     {
-        "place_in_shoppingcart" : 1,
-        "order_id" :1,
-        "Item_id" :1,
-        "amount" :1,
-        "color" :"Black",
-        "model" :"Bl",
+        "id" :1,
+        "name" :"Black Cap",
         "price" :200,
-        "customer" :"A",
-        "image" : "cap.black1.png"
+        "image" : "/static/cap_black.png"
+    },
+    {
+        "id" :2,
+        "name" :"Blue Cap",
+        "price" :200,
+        "image" : "/static/cap_blue.png"
+    },
+    {
+        "id" :3,
+        "name" :"Green Cap",
+        "price" :200,
+        "image" : "/static/cap_green.png"
+    },
+    {
+        "id" :4,
+        "name" :"Purple Cap",
+        "price" :200,
+        "image" : "/static/cap_purple.png"
+    },
+    {
+        "id" :5,
+        "name" :"Red Cap",
+        "price" :200,
+        "image" : "/static/cap_red.png"
+    },
+    {
+        "id" :6,
+        "name" :"White Cap",
+        "price" :200,
+        "image" : "/static/cap_white.png"
     }
 ]
 

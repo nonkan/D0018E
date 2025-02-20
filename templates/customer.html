@@ -10,7 +10,7 @@
     <!-- This is the customer container section-->.
     <div class="customer">
         <header>
-            <div class="title">Products</div>
+            <div class="title">NoCap Co</div>
             <div class="icon-cart"><!-- icon taken from flowbite.com/icons-->.
                 <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"/>
@@ -21,13 +21,13 @@
     </div>
 <!-- This is the product tab section-->
         <div class="listProduct">
-
-            <div class="item">
+           <!-- <div class="item">
                 <img src="{{ url_for('static', filename='cap_black.png') }}" alt="Black Cap">
                 <h2>Black Cap</h2>
                 <div class="price">200SEK</div>
                 <button class="addCart">Add To Cart</button>
-            </div>
+            </div>-->
+            <!--
             <div class="item">
                 <img src="{{ url_for('static', filename='cap_Blue.png') }}" alt="Blue Cap">
                 <h2>Blue Cap</h2>
@@ -58,111 +58,116 @@
                 <div class="price">200SEK</div>
                 <button class="addCart">Add To Cart</button>
             </div>
+        -->
         </div>
 <!-- This is the shopping cart tab section-->.
 <div class="cartTab">
     <h1>Shopping Cart</h1>
-    <div class="listCart">
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_black.png') }}" alt="Black Cap">
+        <div class="listCart">
+            <!--
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_black.png') }}" alt="Black Cap">
+                </div>
+                <div class="name">
+                    Black Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
             </div>
-            <div class="name">
-                Black Cap
+        -->
+            <!--
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_blue.png') }}" alt="Blue Cap">
+                </div>
+                <div class="name">
+                    Blue Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
             </div>
-            <div class="totalPrice">
-                200SEK
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_green.png') }}" alt="Green Cap">
+                </div>
+                <div class="name">
+                    Green Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
             </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_purple.png') }}" alt="Purple Cap">
+                </div>
+                <div class="name">
+                    Purple Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
             </div>
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_red.png') }}" alt="Red Cap">
+                </div>
+                <div class="name">
+                    Red Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
+            </div>
+            <div class="item">
+                <div class="image">
+                <img src="{{ url_for('static', filename='cap_white.png') }}" alt="White Cap">
+                </div>
+                <div class="name">
+                    White Cap
+                </div>
+                <div class="totalPrice">
+                    200SEK
+                </div>
+                <div class="quantity">
+                    <span class="minus"><</span>
+                    <span>1</span>
+                    <span class="plus">></span>
+                </div>
+            </div>
+        -->
         </div>
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_blue.png') }}" alt="Blue Cap">
-            </div>
-            <div class="name">
-                Blue Cap
-            </div>
-            <div class="totalPrice">
-                200SEK
-            </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
-            </div>
-        </div>
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_green.png') }}" alt="Green Cap">
-            </div>
-            <div class="name">
-                Green Cap
-            </div>
-            <div class="totalPrice">
-                200SEK
-            </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
-            </div>
-        </div>
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_purple.png') }}" alt="Purple Cap">
-            </div>
-            <div class="name">
-                Purple Cap
-            </div>
-            <div class="totalPrice">
-                200SEK
-            </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
-            </div>
-        </div>
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_red.png') }}" alt="Red Cap">
-            </div>
-            <div class="name">
-                Red Cap
-            </div>
-            <div class="totalPrice">
-                200SEK
-            </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
-            </div>
-        </div>
-        <div class="item">
-            <div class="image">
-            <img src="{{ url_for('static', filename='cap_white.png') }}" alt="White Cap">
-            </div>
-            <div class="name">
-                White Cap
-            </div>
-            <div class="totalPrice">
-                200SEK
-            </div>
-            <div class="quantity">
-                <span class="minus"></span>
-                <span>1</span>
-                <span class="plus"></span>
-            </div>
-        </div>
-        <div class="btn">
-            <button class="close">CLOSE</button>
-            <button class="checkout">CHECKOUT</button>
-        </div>
+    <div class="btn">
+        <button class="close">CLOSE</button>
+        <button class="checkout">CHECKOUT</button>
     </div>
 </div>
 
