@@ -6,10 +6,10 @@ app = Flask(__name__)
 #   Database setup for retailers database
 def connect_db():
     conn = psycopg2.connect(
-        dbname="d0018e_retailer",
+        dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",
+        host="51.21.197.33",
         port="5432"
     )
     return conn

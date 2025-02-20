@@ -38,7 +38,7 @@ header{
     right: -20px; 
 }
 /*NoCap title*/
-
+/*
 .title{
     font-size: 60px;
     padding: 10px;
@@ -46,11 +46,12 @@ header{
     font-weight: 800;
     font-stretch: absolute;
 }
+.title{
+    font-size: xx-large;
+}
 
-/*Products*/
 .listProduct .item img{
-    width: 150px;
- 
+    width: 90%;
     filter: drop-shadow(0 50px 20px #0009);
 }
 
@@ -62,10 +63,10 @@ header{
 
 .listProduct .item{
     background-color: rgb(247, 245, 244);
-    padding: 10px;
+    padding: 20px;
     border-radius: 20px;
 }
-      
+     
 .listProduct .item h2{
     font-weight: 600;
     font-size: large;
@@ -73,6 +74,51 @@ header{
 .listProduct .item .price{
     letter-spacing: 5px;
     font-size: medium;
+}
+    
+
+.listProduct .item button{
+    background-color: darkslategrey;
+    color: azure;
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+}
+*/
+
+.title{
+    font-size: 60px;
+    padding: 10px;
+    margin: 50;
+    font-weight: 800;
+    font-stretch: absolute;
+}
+.title{
+    font-size: xx-large;
+}
+.listProduct .item img{
+    width: 90%;
+    filter: drop-shadow(0 50px 20px #0009);
+}
+.listProduct{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.listProduct .item{
+    background-color: #EEEEE6;
+    padding: 20px;
+    border-radius: 20px;
+}
+.listProduct .item h2{
+    font-weight: 500;
+    font-size: large;
+}
+.listProduct .item .price{
+    letter-spacing: 7px;
+    font-size: small;
 }
 .listProduct .item button{
     background-color: darkslategrey;
@@ -96,7 +142,7 @@ header{
     transition: .5s;
 }
 body.showCart .cartTab{
-    inset: 0 0 0 auto;
+    right: 0;
 }
 body.showCart .customer{
     transform: translateX(-250px);
