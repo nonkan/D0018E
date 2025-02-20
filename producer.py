@@ -6,10 +6,10 @@ app = Flask(__name__)
 #   Database setup for retailers database
 def connect_db():
     conn = psycopg2.connect(
-        dbname="d0018e_db",
+        dbname="d0018e_retailer",
         user="d0018e",
         password="pass",
-        host="51.21.197.33",
+        host="localhost",
         port="5432"
     )
     return conn
@@ -32,25 +32,48 @@ def goto_designer():
 def goto_retailer():
     return render_template('retailer.html')
 
+#-----------------------------------------------------------------------------------------
+
 @app.route('/get_orders')
 def get_orders():
     conn = connect_db()
     cur = conn.cursor()
-    stock = "SELECT * FROM producer"
-    cur.execute(stock)
-    results = cur.fetchall()
+    rows = "SELECT COUNT(*) FROM producer"
+    cur.execute(rows)
+    count = cur.fetchone()[0]
+
+    if count > 0:
+        stock = "SELECT * FROM producer"
+        cur.execute(stock)
+        results = cur.fetchall()
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return render_template('producer.html', results=results)
+        
+    else:
+        x = "Nothing to produce!"
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return render_template('producer.html', x=x)
     
-    #prints out in terminal
-    #for row in cur.fetchall():
-    #    print (row, '\n')
-    
+@app.route('/produce')
+def produce():
+    conn = connect_db()
+    cur = conn.cursor()
+    order = "DELETE FROM producer WHERE order_id = (SELECT MIN(order_id) FROM producer)"
+    cur.execute(order)
+
     conn.commit()
     cur.close()
     conn.close()
 
-    #prints out on webpage stock.html
-    return render_template('producer.html', results=results)
-
+    return render_template('producer.html')
 
 #-----------------------------------------------------------------------------------------
 
@@ -58,3 +81,6 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 #-----------------------------------------------------------------------------------------
+#INSERT INTO producer (item_id, amount, color, model, order_id) VALUES (2, 2, 2, 2, 2)
+#delete from producer
+#SELECT * FROM producer

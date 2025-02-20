@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" context="width=device-width, initial-scale=1.0">
     <title>Producer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='producer.css') }}">
 </head>
 <body>
     <h1>Cap Producer</h1>
 
-    <table border="1">
+    <table>
         <tr>
             <th>production_id</th>
             <th>item_id</th>
@@ -26,6 +27,18 @@
         {% endfor %}
     </table>
 
+    <p>
+        {{x}}
+    </p>
+
+    <form action = "{{url_for('get_orders')}}" method = "get">
+        <button type = "submit">Orders</button>
+    </form>
+
+    <form action = "{{url_for('produce')}}" method = "get">
+        <button type = "submit">produce</button>
+    </form>
+
   
     <h3>Paths to other modules</h3>
     <form action = "{{url_for('goto_customer')}}" method = "get">
@@ -40,9 +53,6 @@
         <button type = "submit">Designer</button>
     </form>
 
-    <form action = "{{url_for('get_orders')}}" method = "get">
-        <button type = "submit">Orders</button>
-    </form>
 
 </body>
 </html>
