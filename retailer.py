@@ -27,18 +27,13 @@ def show_stock():
     cur = conn.cursor()
     stock = "SELECT * FROM retailer"
     cur.execute(stock)
-    results = cur.fetchall()
-    
-    #prints out in terminal
-    #for row in cur.fetchall():
-    #    print (row, '\n')
-    
+    stock_results = cur.fetchall()
     conn.commit()
     cur.close()
     conn.close()
 
     #prints out on webpage stock.html
-    return render_template('stock.html', results=results)
+    return render_template('stock.html', stock_results=stock_results)
     #return ".."
 
 
@@ -100,16 +95,16 @@ def process_order():
     # from the stock and sending the order to producer
     conn = connect_db()
     cur = conn.cursor()
-    #order = "SELECT * FROM retailer ORDER BY order_id;"
+    order = "SELECT * FROM retailer WHERE order_id = (SELECT MIN(order_id) FROM retailer);"
+    cur.execute(order)
+    order_results = cur.fetchall()
     cleaning = "DELETE FROM retailer WHERE order_id = (SELECT MIN(order_id) FROM retailer);"
-    #cur.execute(order)
-    #orders = cur.fetchall()
     cur.execute(cleaning)
     conn.commit()
     cur.close()
     conn.close()
 
-    return render_template('stock.html')
+    return render_template('stock.html', order_results=order_results)
 
 #-------------------------------routes between modules------------------------------------
 
