@@ -2,22 +2,22 @@
     "sqltools.connections": [
         {
             "previewLimit": 50,
-            "server": "51.21.197.33",
-            "port": 5432,
-            "askForPassword": true,
-            "driver": "PostgreSQL",
-            "name": "aws",
-            "database": "d0018e_db",
-            "username": "d0018e"
-        },
-        {
-            "previewLimit": 50,
             "server": "localhost",
             "port": 5432,
             "askForPassword": true,
             "driver": "PostgreSQL",
             "name": "local",
             "database": "d0018e_retailer",
+            "username": "d0018e"
+        },
+        {
+            "previewLimit": 50,
+            "server": "13.60.187.38",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "aws",
+            "database": "d0018e_db",
             "username": "d0018e"
         }
     ]
