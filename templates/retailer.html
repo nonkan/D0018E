@@ -3,40 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" context="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='retailer.css') }}">
     <title>Retailer</title>
 </head>
+
 <body>
-    <h1>Cap Retailer</h1>
+    <h1>Cap Retailer / Admin</h1>
     
-    <form id="insertForm">
-        <label for = "amount">Amount:</label>
-        <input type = "text" id = "amount" name = "amount" required><br>
+    <h3>Add Order Info</h3>
+      <form id="insertFormInfo">
+      
+        <label for = "order_id">order_id:</label>
+        <input type = "text" id = "order_id" name = "order_id" required><br>
+      
+          <label for = "item_id">item_id:</label>
+          <input type = "text" id = "item_id" name = "item_id" required><br>
+      
+          <label for = "amount">amount</label>
+          <input type = "text" id = "amount" name = "amount" required><br>
+
+          <label for = "customer">customer</label>
+          <input type = "text" id = "customer" name = "customer" required><br>
+      
+          <button type = "submit">Add Order Info</button>
+    </form>
+
+    <h3>Add Order Status</h3>
+    <form id="insertFormStatus">
     
-        <label for = "color">Color:</label>
-        <input type = "text" id = "color" name = "color" required><br>
+        <label for = "place_in_stock">place_in_stock:</label>
+        <input type = "text" id = "place_in_stock" name = "place_in_stock" required><br>
     
-        <label for = "model">Model:</label>
-        <input type = "text" id = "model" name = "model" required><br>
+        <label for = "order_id">order_id:</label>
+        <input type = "text" id = "order_id" name = "order_id" required><br>
     
-        <label for = "price">Price:</label>
-        <input type = "text" id = "price" name = "price" required><br>
+        <label for = "order_status">order_status</label>
+        <input type = "text" id = "order_status" name = "order_status" required><br>
     
-        <label for = "customer">Customer:</label>
-        <input type = "text" id = "customer" name = "customer" required><br><br>
-    
-        <button type = "submit">Insert</button>
+        <button type = "submit">Add Order Status</button>
   </form>
 
-  <form action = "{{url_for('create_table')}}" method = "get">
-    <button type = "submit">Create Stock</button>
-  </form>
-
-  <form action = "{{url_for('drop_table')}}" method = "get">
-    <button type = "submit">Remove Stock</button>
-  </form>
-
-  <form action = "{{url_for('show_stock')}}" method = "get">
-      <button type = "submit">Stock</button>
+  <form action = "{{url_for('show_orders')}}" method = "get">
+      <button type = "submit">Orders</button>
   </form>
 
   <h3>Paths to other modules</h3>
@@ -48,25 +56,40 @@
     <button type = "submit">Producer</button>
   </form>
 
-<form action = "{{url_for('goto_designer')}}" method = "get">
-  <button type = "submit">Designer</button>
-</form>
-
-  <p id = "message"></p>
+  <p id="message"></p>
+  
 
   <script>
-    document.getElementById('insertForm').addEventListener('submit', function(event) {
-      event.preventDefault();  // Prevent form from submitting normally
-
+    document.getElementById('insertFormInfo').addEventListener('submit', function(event) {
+      event.preventDefault();  // Prevent default form submission
+  
       const formData = new FormData(this);
-      fetch('/insert', {
+      fetch('/insertInfo', {  // Send data to the correct endpoint
         method: 'POST',
         body: formData
       })
       .then(response => response.json())
       .then(data => {
-        document.getElementById('message').innerText = data.message;  // Show success message
-        this.reset();  // Reset the form fields
+        document.getElementById('message').innerText = data.message;  // Display success message
+        this.reset();  // Reset form fields
+      })
+      .catch(error => {
+        document.getElementById('message').innerText = 'Error: ' + error;
+      });
+    });
+  
+    document.getElementById('insertFormStatus').addEventListener('submit', function(event) {
+      event.preventDefault();  // Prevent default form submission
+  
+      const formData = new FormData(this);
+      fetch('/insertStatus', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('message').innerText = data.message;  // Display success message
+        this.reset();  // Reset form fields
       })
       .catch(error => {
         document.getElementById('message').innerText = 'Error: ' + error;

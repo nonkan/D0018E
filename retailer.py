@@ -9,7 +9,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="51.21.197.33",
+        host="localhost",
         port="5432"
     )
     return conn
@@ -20,90 +20,168 @@ def connect_db():
 def home():
     return render_template('retailer.html')
 
+#------retailer.html related---------------------------
 
-@app.route('/show_stock')
-def show_stock():
+@app.route('/insertStatus', methods=['POST'])
+def insertStatus():
+    order_id = request.form['order_id']
+    order_status = request.form['order_status']
+
     conn = connect_db()
     cur = conn.cursor()
-    stock = "SELECT * FROM retailer"
-    cur.execute(stock)
-    stock_results = cur.fetchall()
+    
+    insert_query = """
+        INSERT INTO retailer (order_id, order_status)
+        VALUES (%s, %s)
+    """
+    cur.execute(insert_query, (order_id, order_status))
+
     conn.commit()
     cur.close()
     conn.close()
 
-    #prints out on webpage stock.html
-    return render_template('stock.html', stock_results=stock_results)
-    #return ".."
+    return jsonify({"message": "inserted"})
 
-
-@app.route('/insert', methods=['POST'])
-def insert():
+@app.route('/insertInfo', methods=['POST'])
+def insertInfo():
+    order_id = request.form['order_id']
+    item_id = request.form['item_id']
     amount = request.form['amount']
-    color = request.form['color']
-    model = request.form['model']
-    price = request.form['price']
     customer = request.form['customer']
 
     conn = connect_db()
     cur = conn.cursor()
     
     insert_query = """
-        INSERT INTO retailer (amount, color, model, price, customer)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO orders (order_id, item_id, amount, customer)
+        VALUES (%s, %s, %s, %s)
     """
-    cur.execute(insert_query, (amount, color, model, price, customer))
+    cur.execute(insert_query, (order_id, item_id, amount, customer))
 
     conn.commit()
     cur.close()
     conn.close()
 
-    # Return a success message as a JSON response
     return jsonify({"message": "inserted"})
 
-
-@app.route('/create_table')
-def create_table():
+@app.route('/show_orders')
+def show_orders():
     conn = connect_db()
     cur = conn.cursor()
-    table = "CREATE TABLE retailer (item_ID SERIAL PRIMARY KEY, amount VARCHAR(255), color VARCHAR(255), model VARCHAR(255), price VARCHAR(255), order_ID VARCHAR(255), customer VARCHAR(255))" 
-    cur.execute(table)
+    order = "SELECT * FROM retailer"
+    cur.execute(order)
+    order_results = cur.fetchall()
+    order2 = "SELECT * FROM orders"
+    cur.execute(order2)
+    order2_results = cur.fetchall()
     conn.commit()
     cur.close()
     conn.close()
+    return render_template('order.html', order_results=order_results, order2_results=order2_results)
 
-    #
-    return render_template('retailer.html')
 
-@app.route('/drop_table')
-def drop_table():
+#---------order.html related---------------------------
+
+    #to be used by producer
+def check_orders():
     conn = connect_db()
     cur = conn.cursor()
-    drop = "DROP TABLE retailer" 
-    cur.execute(drop)
+    what_to_produce = "SELECT MIN(place_in_stock) FROM retailer;"
+    cur.execute(what_to_produce)
+    result = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
+    return result
+   
+   #to be used by customer
+def add_order(order_id, item_id, amount, customer):
+    conn = connect_db()
+    cur = conn.cursor()
+    insert_query = """
+        INSERT INTO orders (order_id, item_id, amount, customer)
+        VALUES (%s, %s, %s, %s)
+    """
+    cur.execute(insert_query, (order_id, item_id, amount, customer))
+    conn.commit()
+    cur.close()
+    conn.close()
+   
 
-    #
-    return render_template('retailer.html')
+def refresh_orders():
+    conn = connect_db()
+    cur = conn.cursor()
+    order = "SELECT * FROM retailer"
+    cur.execute(order)
+    order_results = cur.fetchall()
+    order2 = "SELECT * FROM orders"
+    cur.execute(order2)
+    order2_results = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return(order_results, order2_results)
+
+
+def clear_orders():
+    conn = connect_db()
+    cur = conn.cursor()
+    remove = "DELETE FROM retailer WHERE order_status = 'produced' OR order_status = 'processing';"
+    cur.execute(remove)
+    conn.commit()
+    cur.close()
+    conn.close()
 
 @app.route('/process_order')
 def process_order():
-    # process the order in the form of removing all items with the same order_id -
-    # from the stock and sending the order to producer
     conn = connect_db()
     cur = conn.cursor()
-    order = "SELECT * FROM retailer WHERE order_id = (SELECT MIN(order_id) FROM retailer);"
+    #select all of the same order_id that is the smallest i.e first to be produced
+    order = "SELECT * FROM orders WHERE order_id = (SELECT MIN(order_id) FROM orders);"
     cur.execute(order)
-    order_results = cur.fetchall()
-    cleaning = "DELETE FROM retailer WHERE order_id = (SELECT MIN(order_id) FROM retailer);"
-    cur.execute(cleaning)
+    rows = cur.fetchall()
+
+    #check if order_id already is in table
+    Exists = "SELECT EXISTS (SELECT 1 FROM retailer WHERE order_id = %s);"
+    cur.execute(Exists, (rows[0][0],))
+    if not cur.fetchone()[0]:
+        #insert selected order_id into order_status table
+        insert_retailer = "INSERT into retailer (order_id, order_status) VALUES(%s, %s);"
+        cur.execute(insert_retailer, (rows[0][0],'produce'))
+    
     conn.commit()
     cur.close()
     conn.close()
+    clear_orders()
+    order_results, order2_results = refresh_orders()
+    return render_template('order.html', order_results=order_results, order2_results=order2_results)
 
-    return render_template('stock.html', order_results=order_results)
+@app.route('/remove_order_status', methods=['POST'])
+def remove_order_status():
+    place_in_stock = request.form['place_in_stock']
+    conn = connect_db()
+    cur = conn.cursor()
+    remove_query = """
+        DELETE FROM retailer WHERE place_in_stock = %s
+        """
+    cur.execute(remove_query, (place_in_stock,))   
+    conn.commit()
+    conn.close()
+    return render_template('order.html')
+
+@app.route('/remove_order_info', methods=['POST'])
+def remove_order_info():
+    order_id = request.form['order_id']
+    conn = connect_db()
+    cur = conn.cursor()
+    remove_query = """
+        DELETE FROM orders WHERE order_id = %s
+        """
+    cur.execute(remove_query, (order_id,))   
+    conn.commit()
+    conn.close()
+    return render_template('order.html')
+
 
 #-------------------------------routes between modules------------------------------------
 
@@ -114,10 +192,6 @@ def goto_customer():
 @app.route('/goto_producer')
 def goto_producer():
     return render_template('producer.html')
-
-@app.route('/goto_designer')
-def goto_designer():
-    return render_template('designer.html')
 
 @app.route('/goto_retailer')
 def goto_retailer():
