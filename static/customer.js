@@ -25,22 +25,34 @@ checkout.addEventListener('click', (event) =>{
         alert('1');
     }
 })*/
-/*
-checkout.addEventListener('click', (event) => {
+
+document.querySelector('.checkout').addEventListener('click', (event) => {
     let positionClick = event.target;
     if (positionClick.classList.contains('checkout')) {
-        window.location.href = "http://127.0.0.1:5000/goto_designer";
+        let orderData = {
+            order_id:
+            item_id:
+            amount: 
+            customer:
+        };
+
+        try{
+            let response = await fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+            let result = await response.json();
+            alert(result.message); //display message
+        } catch (error) {
+            console.error("Error", error);
+        }
     }
 });
-*/
-/*
-checkout.addEventListener('click', (event) => {
-    let positionClick = event.target;
-    if (positionClick.classList.contains('checkout')) {
-        window.location.href = "{{ url_for('goto_designer') }}"; // Redirect to designer page
-    }
-});
-*/
+
+
 
 
 const addDataToHTML = () => {
@@ -176,8 +188,7 @@ const initApp = () => {
 }
 initApp();
 
-//------------------------------------------------------------------------------------------
-//TODO CREATE A TABLE IN DATABASE WHEN CLICKED ON ITEM
+
 
 
 
