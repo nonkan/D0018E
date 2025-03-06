@@ -19,38 +19,28 @@
             </div>
         </header>
     </div>
+    <form id="customer-form">
+        <label for="customer-name">Enter your name:</label>
+        <input type="text" id="customer-name" placeholder="Your Name" required>
+        <button type="submit">Save</button>
+    </form>
+    
+    <p id="welcome-message" style="display: none;"></p>
+    
+    
+    
 <!-- This is the product tab section-->
         <div class="listProduct">
-           <!-- <div class="item">
-                <img src="{{ url_for('static', filename='cap_black.png') }}" alt="Black Cap">
-                <h2>Black Cap</h2>
-                <div class="price">200SEK</div>
-                <button class="addCart">Add To Cart</button>
-            </div>-->
         </div>
 <!-- This is the shopping cart tab section-->.
 <div class="cartTab">
     <h1>Shopping Cart</h1>
         <div class="listCart">
-            <!--
-            <div class="item">
-                <div class="image">
-                <img src="{{ url_for('static', filename='cap_black.png') }}" alt="Black Cap">
-                </div>
-                <div class="name">
-                    Black Cap
-                </div>
-                <div class="totalPrice">
-                    200SEK
-                </div>
-                <div class="quantity">
-                    <span class="minus"><</span>
-                    <span>1</span>
-                    <span class="plus">></span>
-                </div>
-            </div>
-        -->
-        </div>
+        </div>  
+        <div class="totalAmount">
+            <h3>Total Items: <span id="total-items">0</span></h3>
+        </div>        
+        
     <div class="btn">
         <button class="close">CLOSE</button>
         <button class="checkout">CHECKOUT</button>

@@ -26,32 +26,94 @@ checkout.addEventListener('click', (event) =>{
     }
 })*/
 
-document.querySelector('.checkout').addEventListener('click', (event) => {
-    let positionClick = event.target;
-    if (positionClick.classList.contains('checkout')) {
+document.addEventListener("DOMContentLoaded", () => {
+    let nameInput = document.getElementById("customer-name");
+    let welcomeMessage = document.getElementById("welcome-message");
+    let customerForm = document.getElementById("customer-form");
+
+    // Check sessionStorage for a stored name
+    if (sessionStorage.getItem("customerName")) {
+        sessionStorage.removeItem("customerName"); // Clear stored name on page load
+    }
+
+    customerForm.addEventListener("submit", (event) => {
+        event.preventDefault(); // Prevent form submission
+
+        let customerName = nameInput.value.trim();
+        if (customerName) {
+            sessionStorage.setItem("customerName", customerName); // Store name in sessionStorage
+            displayWelcomeMessage(customerName);
+        }
+    });
+
+    function displayWelcomeMessage(name) {
+        welcomeMessage.textContent = `Welcome, ${name}!`;
+        welcomeMessage.style.display = "block";
+        customerForm.style.display = "none"; // Hide form after name is entered
+    }
+});
+
+document.querySelector('.checkout').addEventListener('click', async (event) => {
+    if (event.target.classList.contains('checkout')) {
+        // Customer name input validation
+        let customerName = document.getElementById('customerName').value.trim();
+        if (!customerName) {
+            alert("Please enter your name before checking out.");
+            return;
+        }
+
+        // Get the current order_id from localStorage, default to 1 if it doesn't exist
+        let orderId = localStorage.getItem('order_id');
+        if (!orderId) {
+            orderId = 1; // First order
+        } else {
+            orderId = parseInt(orderId) + 1; // Increment order_id for the next order
+        }
+
+        // Save the updated order_id back to localStorage
+        localStorage.setItem('order_id', orderId);
+
+        // Calculate totalAmount based on cart
+        let totalAmount = carts.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Prepare order data dynamically from the cart
         let orderData = {
-            order_id:
-            item_id:
-            amount: 
-            customer:
+            order_id: orderId, 
+            item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
+            amount: totalAmount,
+            customer: customerName
         };
 
-        try{
+        // Prepare selected items for the server
+        let selectedItems = carts.map(cart => ({
+            item_id: cart.product_id,
+            amount: cart.quantity,
+            customer: customerName
+        }));
+
+        // Sending data to server
+        try {
             let response = await fetch('/checkout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify({ order_id: orderData.order_id, items: selectedItems })
             });
+
             let result = await response.json();
-            alert(result.message); //display message
+            if (result.success) {
+                alert("Order placed successfully!");
+                window.location.href = "{{ url_for('goto_retailer') }}"; // Redirect after checkout
+            } else {
+                alert("Error: " + result.message);
+            }
         } catch (error) {
-            console.error("Error", error);
+            console.error("Error:", error);
+            alert("Failed to connect to the server.");
         }
     }
 });
-
 
 
 
@@ -108,36 +170,65 @@ const addToCart = (product_id) => {
    // localStorage.setItem('cart', JSON.stringify(cart));
 //}
 const addCartToHTML = () => {
-    listCartHTML.innerHTML = '';
-    let totalQuantity = 0;
-    if(carts.length > 0){
+    listCartHTML.innerHTML = ''; // Clear cart display
+    let totalQuantity = 0; // Variable for the total quantity in the cart
+    let groupedItems = {}; // Object to group items by their name or product type
+
+    if (carts.length > 0) {
+        // Loop through each item in the cart
         carts.forEach(cart => {
-            totalQuantity = totalQuantity +  cart.quantity;
+            let positionProduct = listProducts.findIndex((value) => value.id == cart.product_id);
+            let info = listProducts[positionProduct];
+
+            // Add to grouped items (group by product name or type)
+            if (!groupedItems[info.name]) {
+                groupedItems[info.name] = 0;
+            }
+            groupedItems[info.name] += cart.quantity;
+
             let newCart = document.createElement('div');
             newCart.classList.add('item');
             newCart.dataset.id = cart.product_id;
 
-            let positionProduct = listProducts.findIndex((value) => value.id == cart.product_id);
-            let info = listProducts[positionProduct];
+            // Add item to the cart display
             listCartHTML.appendChild(newCart);
             newCart.innerHTML = `
-            <div class="image">
+                <div class="image">
                     <img src="${info.image}">
                 </div>
                 <div class="name">
-                ${info.name}
+                    ${info.name}
                 </div>
-                <div class="totalPrice">${info.price * cart.quantity}SEK</div>
+                <div class="totalPrice">${info.price * cart.quantity} SEK</div>
                 <div class="quantity">
                     <span class="minus"><</span>
                     <span>${cart.quantity}</span>
                     <span class="plus">></span>
                 </div>
             `;
-        })
+
+            // Add to the total quantity for the cart icon
+            totalQuantity += cart.quantity;
+        });
+
+        // Display the total quantity grouped by product name
+        let totalItems = 0;
+        for (let item in groupedItems) {
+            totalItems += groupedItems[item]; // Sum the quantities
+        }
+
+        // Display the total quantity in the shopping cart icon and total section
+        iconCartSpan.innerText = totalQuantity; // Update cart icon quantity
+        document.getElementById('total-items').textContent = totalItems; // Update total amount of items in cart
+    } else {
+        // If the cart is empty, set both values to 0
+        iconCartSpan.innerText = 0;
+        document.getElementById('total-items').textContent = 0;
     }
-    iconCartSpan.innerText = totalQuantity;
-}
+};
+
+
+
 listCartHTML.addEventListener('click', (event) => {
     let positionClick = event.target;
     if(positionClick.classList.contains('minus') || positionClick.classList.contains('plus')){
@@ -151,26 +242,28 @@ listCartHTML.addEventListener('click', (event) => {
 })
 const changeQuantityCart = (product_id, type) => {
     let positionItemInCart = carts.findIndex((value) => value.product_id == product_id);
-    if(positionItemInCart >= 0){
+
+    if (positionItemInCart >= 0) {
         let info = carts[positionItemInCart];
         switch (type) {
             case 'plus':
-                carts[positionItemInCart].quantity = carts[positionItemInCart].quantity + 1;
+                carts[positionItemInCart].quantity += 1;
                 break;
-        
+
             default:
                 let changeQuantity = carts[positionItemInCart].quantity - 1;
                 if (changeQuantity > 0) {
                     carts[positionItemInCart].quantity = changeQuantity;
-                }else{
+                } else {
                     carts.splice(positionItemInCart, 1);
                 }
                 break;
         }
     }
-    addCartToHTML();
-    //addCartToMemory();
+
+    addCartToHTML(); // Refresh the cart display with the new quantities
 }
+
 const initApp = () => {
     //get data
     fetch('/static/products.json')  

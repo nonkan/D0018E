@@ -1,39 +1,56 @@
 [
     {
-        "id" :1,
-        "name" :"Black Cap",
-        "price" :200,
-        "image" : "/static/cap_black.png"
+        "id": 1,
+        "name": "Black Cap",
+        "color": "Black",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_black.png"
     },
     {
-        "id" :2,
-        "name" :"Blue Cap",
-        "price" :200,
-        "image" : "/static/cap_blue.png"
+        "id": 2,
+        "name": "Blue Cap",
+        "color": "Blue",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_blue.png"
     },
     {
-        "id" :3,
-        "name" :"Green Cap",
-        "price" :200,
-        "image" : "/static/cap_green.png"
+        "id": 3,
+        "name": "Green Cap",
+        "color": "Green",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_green.png"
     },
     {
-        "id" :4,
-        "name" :"Purple Cap",
-        "price" :200,
-        "image" : "/static/cap_purple.png"
+        "id": 4,
+        "name": "Purple Cap",
+        "color": "Purple",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_purple.png"
     },
     {
-        "id" :5,
-        "name" :"Red Cap",
-        "price" :200,
-        "image" : "/static/cap_red.png"
+        "id": 5,
+        "name": "Red Cap",
+        "color": "Red",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_red.png"
     },
     {
-        "id" :6,
-        "name" :"White Cap",
-        "price" :200,
-        "image" : "/static/cap_white.png"
+        "id": 6,
+        "name": "White Cap",
+        "color": "White",
+        "model": "Classic",
+        "amount": 1,
+        "price": 200,
+        "image": "/static/cap_white.png"
     }
 ]
-
