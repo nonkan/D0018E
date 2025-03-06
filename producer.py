@@ -20,6 +20,21 @@ def home():
 
 #-------------------------------routes between modules------------------------------------
 
+@app.route('/goto_customer')
+def goto_customer():
+    return render_template('customer.html')
+
+@app.route('/goto_producer')
+def goto_producer():
+    return render_template('producer.html')
+
+@app.route('/goto_designer')
+def goto_designer():
+    return render_template('designer.html')
+
+@app.route('/goto_retailer')
+def goto_retailer():
+    return render_template('retailer.html')
 
 #-----------------------------------------------------------------------------------------
 
