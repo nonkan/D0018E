@@ -9,7 +9,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="51.21.197.33",
+        host="localhost",
         port="5432"
         
     )

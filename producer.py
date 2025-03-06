@@ -9,7 +9,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="51.21.197.33",
+        host="localhost",
         port="5432"
     )
     return conn
@@ -20,17 +20,6 @@ def home():
 
 #-------------------------------routes between modules------------------------------------
 
-@app.route('/goto_customer')
-def goto_customer():
-    return render_template('customer.html')
-
-@app.route('/goto_designer')
-def goto_designer():
-    return render_template('designer.html')
-
-@app.route('/goto_retailer')
-def goto_retailer():
-    return render_template('retailer.html')
 
 #-----------------------------------------------------------------------------------------
 
@@ -78,7 +67,7 @@ def produce():
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5002, debug=True)
 
 #-----------------------------------------------------------------------------------------
 #INSERT INTO producer (item_id, amount, color, model, order_id) VALUES (2, 2, 2, 2, 2)

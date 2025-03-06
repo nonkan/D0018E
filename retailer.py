@@ -166,7 +166,7 @@ def refresh_orders():
 def clear_orders():
     conn = connect_db()
     cur = conn.cursor()
-    remove = "DELETE FROM retailer WHERE order_status = 'produced' OR order_status = 'processing';"
+    remove = "DELETE FROM retailer WHERE order_status = 'produce' OR order_status = 'complete';"
     cur.execute(remove)
     conn.commit()
     cur.close()
@@ -177,17 +177,20 @@ def process_order():
     conn = connect_db()
     cur = conn.cursor()
     #select all of the same order_id that is the smallest i.e first to be produced
-    order = "SELECT * FROM orders WHERE order_id = (SELECT MIN(order_id) FROM orders);"
+    order = """
+        SELECT order_id FROM orders 
+        WHERE order_id NOT IN (SELECT order_id FROM retailer) 
+        ORDER BY order_id ASC 
+        LIMIT 1;
+    """
     cur.execute(order)
-    rows = cur.fetchall()
+    row = cur.fetchone()
 
-    #check if order_id already is in table
-    Exists = "SELECT EXISTS (SELECT 1 FROM retailer WHERE order_id = %s);"
-    cur.execute(Exists, (rows[0][0],))
-    if not cur.fetchone()[0]:
+    if row:
+        order_id = row[0]
         #insert selected order_id into order_status table
         insert_retailer = "INSERT into retailer (order_id, order_status) VALUES(%s, %s);"
-        cur.execute(insert_retailer, (rows[0][0],'produce'))
+        cur.execute(insert_retailer, (order_id,'in progress'))
     
     conn.commit()
     cur.close()
@@ -225,18 +228,6 @@ def remove_order_info():
 
 #-------------------------------routes between modules------------------------------------
 
-@app.route('/goto_customer')
-def goto_customer():
-    return render_template('customer.html')
-
-@app.route('/goto_producer')
-def goto_producer():
-    return render_template('producer.html')
-
-@app.route('/goto_retailer')
-def goto_retailer():
-    return render_template('retailer.html')
-
 #------------------------------------------comments----------------------------------------------
 
 @app.route('/goto_comment')
@@ -246,4 +237,4 @@ def goto_comment():
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5001, debug=True)
