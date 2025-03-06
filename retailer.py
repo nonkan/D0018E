@@ -105,17 +105,41 @@ def order_done(order_id):
     conn.close()
    
    #to be used by customer
+# Add order function
 def add_order(order_id, item_id, amount, customer):
-    conn = connect_db()
-    cur = conn.cursor()
-    insert_query = """
-        INSERT INTO orders (order_id, item_id, amount, customer)
-        VALUES (%s, %s, %s, %s)
-    """
-    cur.execute(insert_query, (order_id, item_id, amount, customer))
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        insert_query = """
+            INSERT INTO orders (order_id, item_id, amount, customer)
+            VALUES (%s, %s, %s, %s)
+        """
+        cur.execute(insert_query, (order_id, item_id, amount, customer))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"success": True, "message": f"Order {order_id} added successfully"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+# API endpoint for checkout
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    data = request.json
+    order_id = data.get('order_id')
+    item_id = data.get('item_id')
+    amount = data.get('amount')
+    customer = data.get('customer')
+
+    if not all([order_id, item_id, amount, customer]):  # Validate input
+        return jsonify({"success": False, "message": "Missing order details"}), 400
+
+    result = add_order(order_id, item_id, amount, customer)
+
+    if result["success"]:
+        return jsonify(result), 201
+    else:
+        return jsonify(result), 500
    
 
 def refresh_orders():
