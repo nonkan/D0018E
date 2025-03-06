@@ -21,13 +21,8 @@ textarea {
 
 /* Individual comment box */
 .comment-box {
-    display: inline-block; /* Allows it to scale with content */
-    max-width: 80%; /* Prevents it from taking full width */
+    border: 1px solid #ddd;
     padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #f9f9f9;
-    margin-bottom: 10px;
-    word-wrap: break-word; /* Prevents text overflow */
+    margin: 5px 0;
+    border-radius: 5px;
 }

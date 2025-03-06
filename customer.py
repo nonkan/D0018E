@@ -11,6 +11,7 @@ def connect_db():
         password="pass",
         host="51.21.197.33",
         port="5432"
+        
     )
     return conn
 
@@ -116,7 +117,52 @@ def goto_retailer():
     return render_template('retailer.html')
 
 
-#-----------------------------------------------------------------------------------------
+
+#---------------------------------------comments--------------------------------------------------
+
+@app.route('/goto_comment')
+def goto_comment():
+    return render_template('comment.html')
+
+@app.route('/get_comments', methods=['GET'])
+def get_comments():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT comment_id, comment, customer, created_at FROM comments ORDER BY created_at DESC")
+    comments = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    comments_list = [
+        {"id": c[0], "text": c[1], "customer": c[2], "created_at": c[3].strftime("%Y-%m-%d %H:%M:%S")}
+        for c in comments
+    ]
+
+    return jsonify(comments_list)
+
+# API to add a comment
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    data = request.json
+    comment_text = data.get("comment")
+    customer_name = data.get("customer")
+
+    if not comment_text or not customer_name:
+        return jsonify({"success": False, "message": "Missing comment or customer name"}), 400
+
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO comments (comment, customer) VALUES (%s, %s) RETURNING comment_id",
+        (comment_text, customer_name)
+    )
+    comment_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Comment added!", "comment_id": comment_id})
+
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':

@@ -5,39 +5,19 @@
     <meta name="viewport" context="width=device-width, initial-scale=1.0">
     <title>Comments</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='comment.css') }}">
+    <script src="{{ url_for('static', filename='comment.js') }}" defer></script>
 </head>
 <body>
 
-    <h1>Comments / Reviews page</h1>
-    <h2>Comment Section</h2>
-    
+    <h2>Leave a Comment</h2>
+    <input type="text" id="customerName" placeholder="Your Name">
+    <br>
     <textarea id="commentInput" placeholder="Write a comment..."></textarea>
     <br>
     <button onclick="addComment()">Post Comment</button>
 
+    <h3>Comments:</h3>
     <div class="comments-container" id="commentsContainer"></div>
-
-    <script>
-        function addComment() {
-            let commentText = document.getElementById("commentInput").value.trim();
-
-            if (commentText === "") {
-                alert("Please enter a comment.");
-                return;
-            }
-
-            // Create a new comment box
-            let commentBox = document.createElement("div");
-            commentBox.className = "comment-box";
-            commentBox.textContent = commentText;
-
-            // Append comment to the container
-            document.getElementById("commentsContainer").appendChild(commentBox);
-
-            // Clear input after posting
-            document.getElementById("commentInput").value = "";
-        }
-    </script>
 
 </body>
 </html>

@@ -105,20 +105,27 @@ def order_done(order_id):
     conn.close()
    
    #to be used by customer
-# Add order function
-def add_order(order_id, item_id, amount, customer):
+def add_orders(order_id, items):
     try:
         conn = connect_db()
         cur = conn.cursor()
+
         insert_query = """
             INSERT INTO orders (order_id, item_id, amount, customer)
-            VALUES (%s, %s, %s, %s)
+            VALUES %s
         """
-        cur.execute(insert_query, (order_id, item_id, amount, customer))
+        
+        # Prepare a list of tuples for bulk insert
+        values = [(order_id, item["item_id"], item["amount"], item["customer"]) for item in items]
+
+        # Execute bulk insert
+        psycopg2.extras.execute_values(cur, insert_query, values)
+
         conn.commit()
         cur.close()
         conn.close()
-        return {"success": True, "message": f"Order {order_id} added successfully"}
+        return {"success": True, "message": f"Order {order_id} with {len(items)} items added successfully"}
+    
     except Exception as e:
         return {"success": False, "message": str(e)}
 
@@ -126,20 +133,19 @@ def add_order(order_id, item_id, amount, customer):
 @app.route('/checkout', methods=['POST'])
 def checkout():
     data = request.json
-    order_id = data.get('order_id')
-    item_id = data.get('item_id')
-    amount = data.get('amount')
-    customer = data.get('customer')
+    order_id = data.get("order_id")
+    items = data.get("items")  # List of items
 
-    if not all([order_id, item_id, amount, customer]):  # Validate input
+    if not order_id or not items:
         return jsonify({"success": False, "message": "Missing order details"}), 400
 
-    result = add_order(order_id, item_id, amount, customer)
+    result = add_orders(order_id, items)
 
     if result["success"]:
         return jsonify(result), 201
     else:
-        return jsonify(result), 500
+        return jsonify(result), 500  # Internal server error
+
    
 
 def refresh_orders():
@@ -231,7 +237,7 @@ def goto_producer():
 def goto_retailer():
     return render_template('retailer.html')
 
-#-----------------------------------------------------------------------------------------
+#------------------------------------------comments----------------------------------------------
 
 @app.route('/goto_comment')
 def goto_comment():
