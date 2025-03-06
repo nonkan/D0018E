@@ -93,6 +93,16 @@ def check_orders():
     cur.close()
     conn.close()
     return result
+
+#to be used by producer
+def order_done(order_id):
+    conn = connect_db()
+    cur = conn.cursor()
+    change_status = "UPDATE retailer SET order_status = %s WHERE order_id = %s;"
+    cur.execute(change_status,('produced',order_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
    
    #to be used by customer
 def add_order(order_id, item_id, amount, customer):
@@ -196,6 +206,12 @@ def goto_producer():
 @app.route('/goto_retailer')
 def goto_retailer():
     return render_template('retailer.html')
+
+#-----------------------------------------------------------------------------------------
+
+@app.route('/goto_comment')
+def goto_comment():
+    return render_template('comment.html')
 
 #-----------------------------------------------------------------------------------------
 

@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+/* Comment input styling */
+textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none; /* Prevent manual resize */
+}
+
+/* Comment container */
+.comments-container {
+    margin-top: 20px;
+}
+
+/* Individual comment box */
+.comment-box {
+    display: inline-block; /* Allows it to scale with content */
+    max-width: 80%; /* Prevents it from taking full width */
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    margin-bottom: 10px;
+    word-wrap: break-word; /* Prevents text overflow */
+}
