@@ -83,7 +83,7 @@ def produce():
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    app.run(host='0.0.0.0', port=5002, debug=True)
 
 #-----------------------------------------------------------------------------------------
 #INSERT INTO producer (item_id, amount, color, model, order_id) VALUES (2, 2, 2, 2, 2)
