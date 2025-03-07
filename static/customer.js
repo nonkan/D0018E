@@ -55,31 +55,37 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         let orderData = {
             order_id: orderId,
             item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
-            //item_id: carts.map(item => item.product_id), // List of item IDs as an array
             amount: totalAmount,
             customer: customerName
         };
 
         // Prepare selected items for the server
-        let selectedItems = carts.map(cart => ({
+        let orderinfo = carts.map(cart => ({
             item_id: cart.product_id,
             amount: cart.quantity,
             price: cart.price,  // Include the price for each item
-            //total_price: cart.price * cart.quantity,  // Calculate total price for the item
+            customer: customerName
+        }));
+
+        let shoppinginfo = carts.map(cart => ({
+            item_id: cart.product_id,
+            amount: cart.quantity,
+            totalprice: cart.totalprice * cart.totalQuantity,  // Include the price for each item
             customer: customerName
         }));
 
         // Prepare the payload for both requests
         let retailerData = {
             order_id: orderData.order_id,
-            items: selectedItems
+            items: orderinfo
         };
 
         let customerData = {
             order_id: orderData.order_id,
-            items: selectedItems,
+            items: shoppinginfo,
             customer: customerName
         };
+        console.log('Customer Data:', customerData);
 
         try {
             // Send both requests at the same time using Promise.all

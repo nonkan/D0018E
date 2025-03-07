@@ -1,3 +1,1 @@
-DROP TABLE producer CASCADE;
-DROP TABLE retailer CASCADE;
-DROP TABLE customers CASCADE;
+SELECT * FROM shopping_cart;

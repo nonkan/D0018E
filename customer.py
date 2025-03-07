@@ -42,11 +42,10 @@ def show_cart():
 @app.route('/checkout', methods=['POST'])
 def checkout():
     data = request.json
-    order_id = data.get("order_id")
     items = data.get("items")
     customer_name = data.get("customer")
 
-    if not order_id or not items or not customer_name:
+    if not items or not customer_name:
         return jsonify({"success": False, "message": "Missing order details"}), 400
 
     # Loop through each item in the cart and add them to the shopping cart
@@ -54,11 +53,8 @@ def checkout():
         item_data = {
             "item_id": item.get("item_id"),
             "amount": item.get("amount"),
-            "color": item.get("color"),
-            "model": item.get("model"),
-            "price": item.get("price"),
+            "total_price": item.get("totalprice"),
             "customer": customer_name,
-            "order_id": order_id
         }
 
         # Add item to the shopping cart (insert into DB)
@@ -71,10 +67,7 @@ def add_to_cart(item_data):
     try:
         item_id = item_data["item_id"]
         amount = item_data["amount"]
-        color = item_data["color"]
-        model = item_data["model"]
-        price = item_data["price"]
-        order_id = item_data["order_id"]
+        total_price = item_data["price"]
         customer = item_data["customer"]
 
         conn = connect_db()
@@ -84,7 +77,7 @@ def add_to_cart(item_data):
             INSERT INTO shopping_cart (item_id, amount, color, model, price, order_id, customer)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        cur.execute(insert_query, (item_id, amount, color, model, price, order_id, customer))
+        cur.execute(insert_query, (item_id, amount, total_price, customer))
 
         conn.commit()
         cur.close()
