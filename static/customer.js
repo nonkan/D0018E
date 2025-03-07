@@ -55,6 +55,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         let orderData = {
             order_id: orderId,
             item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
+            //item_id: carts.map(item => item.product_id), // List of item IDs as an array
             amount: totalAmount,
             customer: customerName
         };
@@ -64,6 +65,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
             item_id: cart.product_id,
             amount: cart.quantity,
             price: cart.price,  // Include the price for each item
+            //total_price: cart.price * cart.quantity,  // Calculate total price for the item
             customer: customerName
         }));
 
