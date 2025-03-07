@@ -3,7 +3,7 @@
         "id": 1,
         "name": "Black Cap",
         "color": "Black",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_black.png"
@@ -12,7 +12,7 @@
         "id": 2,
         "name": "Blue Cap",
         "color": "Blue",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_blue.png"
@@ -21,7 +21,7 @@
         "id": 3,
         "name": "Green Cap",
         "color": "Green",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_green.png"
@@ -30,7 +30,7 @@
         "id": 4,
         "name": "Purple Cap",
         "color": "Purple",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_purple.png"
@@ -39,7 +39,7 @@
         "id": 5,
         "name": "Red Cap",
         "color": "Red",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_red.png"
@@ -48,7 +48,7 @@
         "id": 6,
         "name": "White Cap",
         "color": "White",
-        "model": "Classic",
+        "model": "Cap",
         "amount": 1,
         "price": 200,
         "image": "/static/cap_white.png"

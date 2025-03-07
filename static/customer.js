@@ -63,6 +63,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         let selectedItems = carts.map(cart => ({
             item_id: cart.product_id,
             amount: cart.quantity,
+            price: cart.price,  // Include the price for each item
             customer: customerName
         }));
 
@@ -117,6 +118,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         }
     }
 });
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
