@@ -26,8 +26,101 @@ checkout.addEventListener('click', (event) =>{
     }
 })*/
 
+
+
+document.querySelector('.checkout').addEventListener('click', async (event) => {
+    if (event.target.classList.contains('checkout')) {
+        // Customer name input validation
+        let customerName = document.getElementById('customerName').value.trim();
+        if (!customerName) {
+            alert("Please enter your name before checking out.");
+            return;
+        }
+
+        // Get the current order_id from sessionStorage, default to 1 if it doesn't exist
+        let orderId = sessionStorage.getItem('order_id');
+        if (!orderId) {
+            orderId = 1; // First order
+        } else {
+            orderId = parseInt(orderId) + 1; // Increment order_id for the next order
+        }
+
+        // Save the updated order_id to sessionStorage
+        sessionStorage.setItem('order_id', orderId);
+
+        // Calculate totalAmount based on cart
+        let totalAmount = carts.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Prepare order data dynamically from the cart
+        let orderData = {
+            order_id: orderId,
+            item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
+            amount: totalAmount,
+            customer: customerName
+        };
+
+        // Prepare selected items for the server
+        let selectedItems = carts.map(cart => ({
+            item_id: cart.product_id,
+            amount: cart.quantity,
+            customer: customerName
+        }));
+
+        // Prepare the payload for both requests
+        let retailerData = {
+            order_id: orderData.order_id,
+            items: selectedItems
+        };
+
+        let customerData = {
+            order_id: orderData.order_id,
+            items: selectedItems,
+            customer: customerName
+        };
+
+        try {
+            // Send both requests at the same time using Promise.all
+            const [retailerResponse, customerResponse] = await Promise.all([
+                fetch('http://127.0.0.1:5001/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(retailerData)
+                }),
+                fetch('http://127.0.0.1:5000/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(customerData)
+                })
+            ]);
+
+            // Wait for both responses to resolve
+            const retailerResult = await retailerResponse.json();
+            const customerResult = await customerResponse.json();
+
+            // Handle the responses from both endpoints
+            console.log('Retailer Response:', retailerResult);
+            console.log('Customer Response:', customerResult);
+
+            if (retailerResult.success && customerResult.success) {
+                alert("Order placed successfully in both retailer and customer systems!");
+                window.location.href = "http://127.0.0.1:5000/"; // Redirect after checkout
+            } else {
+                alert("Error in processing the order: " + retailerResult.message + " / " + customerResult.message);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Can't place order. Please check the console for details.");
+        }
+    }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
-    let nameInput = document.getElementById("customer-name");
+    let nameInput = document.getElementById("customerName");
     let welcomeMessage = document.getElementById("welcome-message");
     let customerForm = document.getElementById("customer-form");
 
@@ -52,69 +145,6 @@ document.addEventListener("DOMContentLoaded", () => {
         customerForm.style.display = "none"; // Hide form after name is entered
     }
 });
-
-document.querySelector('.checkout').addEventListener('click', async (event) => {
-    if (event.target.classList.contains('checkout')) {
-        // Customer name input validation
-        let customerName = document.getElementById('customerName').value.trim();
-        if (!customerName) {
-            alert("Please enter your name before checking out.");
-            return;
-        }
-
-        // Get the current order_id from localStorage, default to 1 if it doesn't exist
-        let orderId = localStorage.getItem('order_id');
-        if (!orderId) {
-            orderId = 1; // First order
-        } else {
-            orderId = parseInt(orderId) + 1; // Increment order_id for the next order
-        }
-
-        // Save the updated order_id back to localStorage
-        localStorage.setItem('order_id', orderId);
-
-        // Calculate totalAmount based on cart
-        let totalAmount = carts.reduce((sum, item) => sum + item.quantity, 0);
-
-        // Prepare order data dynamically from the cart
-        let orderData = {
-            order_id: orderId, 
-            item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
-            amount: totalAmount,
-            customer: customerName
-        };
-
-        // Prepare selected items for the server
-        let selectedItems = carts.map(cart => ({
-            item_id: cart.product_id,
-            amount: cart.quantity,
-            customer: customerName
-        }));
-
-        // Sending data to server
-        try {
-            let response = await fetch('/checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ order_id: orderData.order_id, items: selectedItems })
-            });
-
-            let result = await response.json();
-            if (result.success) {
-                alert("Order placed successfully!");
-                window.location.href = "{{ url_for('goto_retailer') }}"; // Redirect after checkout
-            } else {
-                alert("Error: " + result.message);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Failed to connect to the server.");
-        }
-    }
-});
-
 
 
 const addDataToHTML = () => {
@@ -166,9 +196,10 @@ const addToCart = (product_id) => {
     addCartToHTML();
    // addCartToMemory();
 }
-//const addCartToMemory = () => {
-   // localStorage.setItem('cart', JSON.stringify(cart));
-//}
+const addCartToMemory = () => {
+    sessionStorage.setItem('cart', JSON.stringify(carts));
+};
+
 const addCartToHTML = () => {
     listCartHTML.innerHTML = ''; // Clear cart display
     let totalQuantity = 0; // Variable for the total quantity in the cart
@@ -272,11 +303,11 @@ const initApp = () => {
         listProducts = data;
         addDataToHTML();
 
-         //get data cart from memory
-        //if(localStorage.getItem('cart')){
-            //carts = JSON.parse(localStorage.getItem('cart'));
-            //addCartToHTML();
-       // }
+          // Get cart from sessionStorage
+          if (sessionStorage.getItem('cart')) {
+            carts = JSON.parse(sessionStorage.getItem('cart'));
+            addCartToHTML();
+        }
     })
 }
 initApp();

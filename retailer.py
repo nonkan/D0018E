@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, render_template, redirect, url_for, request
+from flask_cors import CORS  # Import the CORS module
 import psycopg2
+from psycopg2 import extras  # Import extras explicitly
 
 app = Flask(__name__)
+CORS(app)
 
 #   Database setup for retailers database
 def connect_db():
@@ -9,7 +12,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",
+        host="13.60.187.38",
         port="5432"
     )
     return conn

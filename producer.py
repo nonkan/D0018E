@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, render_template, redirect, url_for, request
 import psycopg2
-
+from psycopg2 import extras  # Import extras explicitly
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app)
 #   Database setup for retailers database
 def connect_db():
     conn = psycopg2.connect(
-        dbname="d0018e_db",
+        dbname="d0018e_retailer",
         user="d0018e",
         password="pass",
         host="localhost",

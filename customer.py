@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, render_template, redirect, url_for, request
 import psycopg2
-
+from psycopg2 import extras  # Import extras explicitly
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app) 
 #   Database setup
 def connect_db():
     conn = psycopg2.connect(
-        dbname="d0018e_db",
+        dbname="d0018e_retailer",
         user="d0018e",
         password="pass",
         host="localhost",
@@ -38,30 +39,63 @@ def show_cart():
     return render_template('customer.html', results=results)
     #return ".."
 
-@app.route('/add_to_cart', methods=['POST'])
-def insert():
-    item_id = request.form['item_id']
-    amount = request.form['amount']
-    color = request.form['color']
-    model = request.form['model']
-    price = request.form['price']
-    order_id = request.form['order_id']
-    customer = request.form['customer']
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    data = request.json
+    order_id = data.get("order_id")
+    items = data.get("items")
+    customer_name = data.get("customer")
 
-    conn = connect_db()
-    cur = conn.cursor()
-    
-    insert_query = """
-        INSERT INTO shopping_cart (item_id, amount, color, model, price, order_id, customer)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """
-    cur.execute(insert_query, (item_id, amount, color, model, price, order_id, customer))
+    if not order_id or not items or not customer_name:
+        return jsonify({"success": False, "message": "Missing order details"}), 400
 
-    conn.commit()
-    cur.close()
-    conn.close()
+    # Loop through each item in the cart and add them to the shopping cart
+    for item in items:
+        item_data = {
+            "item_id": item.get("item_id"),
+            "amount": item.get("amount"),
+            "color": item.get("color"),
+            "model": item.get("model"),
+            "price": item.get("price"),
+            "customer": customer_name,
+            "order_id": order_id
+        }
 
-    return jsonify({"message": "Item added to cart!"})
+        # Add item to the shopping cart (insert into DB)
+        add_to_cart(item_data)
+
+    return jsonify({"success": True, "message": "Order placed successfully!"}), 200
+
+
+def add_to_cart(item_data):
+    try:
+        item_id = item_data["item_id"]
+        amount = item_data["amount"]
+        color = item_data["color"]
+        model = item_data["model"]
+        price = item_data["price"]
+        order_id = item_data["order_id"]
+        customer = item_data["customer"]
+
+        conn = connect_db()
+        cur = conn.cursor()
+
+        insert_query = """
+            INSERT INTO shopping_cart (item_id, amount, color, model, price, order_id, customer)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cur.execute(insert_query, (item_id, amount, color, model, price, order_id, customer))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        print(f"Item {item_id} added to cart successfully!")
+
+    except Exception as e:
+        print(f"Error adding item {item_id} to cart: {str(e)}")
+
+
 
 
 @app.route('/create_cart_table')
@@ -166,4 +200,4 @@ def add_comment():
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(port=5000)
