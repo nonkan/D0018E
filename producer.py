@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, render_template, redirect, url_for, request
 import psycopg2
+import retailer
 from psycopg2 import extras  # Import extras explicitly
 from flask_cors import CORS
 app = Flask(__name__)
@@ -41,17 +42,20 @@ def goto_retailer():
 
 @app.route('/get_orders')
 def get_orders():
+    order_id = retailer.check_orders()
+    
     conn = connect_db()
     cur = conn.cursor()
-    rows = "SELECT COUNT(*) FROM producer"
+    rows = "SELECT COUNT(*) FROM orders"
     cur.execute(rows)
     count = cur.fetchone()[0]
 
     if count > 0:
-        stock = "SELECT * FROM producer"
-        cur.execute(stock)
+        stock = "SELECT * FROM orders WHERE order_id = %s"
+        cur.execute(stock,(order_id,))
         results = cur.fetchall()
 
+        
         conn.commit()
         cur.close()
         conn.close()
@@ -69,16 +73,36 @@ def get_orders():
     
 @app.route('/produce')
 def produce():
+
+    order_id = retailer.check_orders()
+    
     conn = connect_db()
     cur = conn.cursor()
-    order = "DELETE FROM producer WHERE order_id = (SELECT MIN(order_id) FROM producer)"
-    cur.execute(order)
+
+    stock = "SELECT * FROM orders WHERE order_id = %s"
+    cur.execute(stock,(order_id,))
+    results = cur.fetchall()
+
+    item_id = results[0][2]
+    amount = results[0][3]
+
+    rows = "SELECT COUNT(*) FROM producer WHERE item_id = %s AND amount = %s"
+    cur.execute(rows, (item_id,amount))
+    count = cur.fetchone()[0]
+
+    if count <= 0:
+        order = "INSERT INTO producer VALUES(%s, %s) ON CONFLICT DO NOTHING"
+        cur.execute(order,(item_id, amount))
+    
+    select = "SELECT * FROM producer"
+    cur.execute(select)
+    produce = cur.fetchall()
 
     conn.commit()
     cur.close()
     conn.close()
 
-    return render_template('producer.html')
+    return render_template('producer.html', produce=produce)
 
 #-----------------------------------------------------------------------------------------
 

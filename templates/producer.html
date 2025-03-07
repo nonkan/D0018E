@@ -11,12 +11,11 @@
 
     <table>
         <tr>
-            <th>production_id</th>
+            <th>place_in_orders</th>
+            <th>order_id</th>
             <th>item_id</th>
             <th>amount</th>
-            <th>color</th>
-            <th>model</th>
-            <th>order_id</th>
+            <th>customer</th>
         </tr>
         {% for row in results %}
         <tr>
@@ -31,30 +30,28 @@
         {{x}}
     </p>
 
-    <form id = "get-form">
+    <form action = "{{url_for('get_orders')}}" method = "get">
         <button type = "submit">Orders</button>
     </form>
 
-    <form id ="produce-form">
-        <button type="submit">produce</button>
+    <table>
+        <tr>
+            <th>production_id</th>
+            <th>item_id</th>
+            <th>amount</th>
+        </tr>
+        {% for row in produce %}
+        <tr>
+            {% for item in row %}
+            <td>{{ item }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <form action = "{{url_for('produce')}}" method = "get">
+        <button type = "submit">produce</button>
     </form>
-
-    <script>
-        const form = document.querySelector('#produce-form');
-        const button = form.querySelector('button');
-
-        form.addEventListener('submit', function(event) {
-
-            event.preventDefault(); // Prevent the form from actually submitting
-            console.log('Form submitted');
-    
-        });
-
-        button.addEventListener('click', function(event) {
-
-            console.log('Button clicked');
-        });
-    </script>
 
   
     <h3>Paths to other modules</h3>

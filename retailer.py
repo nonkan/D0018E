@@ -89,7 +89,7 @@ def show_orders():
 def check_orders():
     conn = connect_db()
     cur = conn.cursor()
-    what_to_produce = "SELECT MIN(place_in_stock) FROM retailer;"
+    what_to_produce = "SELECT MIN(order_id) FROM retailer;"
     cur.execute(what_to_produce)
     result = cur.fetchone()[0]
     conn.commit()
