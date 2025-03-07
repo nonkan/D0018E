@@ -31,13 +31,30 @@
         {{x}}
     </p>
 
-    <form action = "{{url_for('get_orders')}}" method = "get">
+    <form id = "get-form">
         <button type = "submit">Orders</button>
     </form>
 
-    <form action = "{{url_for('produce')}}" method = "get">
-        <button type = "submit">produce</button>
+    <form id ="produce-form">
+        <button type="submit">produce</button>
     </form>
+
+    <script>
+        const form = document.querySelector('#produce-form');
+        const button = form.querySelector('button');
+
+        form.addEventListener('submit', function(event) {
+
+            event.preventDefault(); // Prevent the form from actually submitting
+            console.log('Form submitted');
+    
+        });
+
+        button.addEventListener('click', function(event) {
+
+            console.log('Button clicked');
+        });
+    </script>
 
   
     <h3>Paths to other modules</h3>
