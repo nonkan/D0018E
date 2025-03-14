@@ -10,7 +10,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="13.60.187.38",
+        host="localhost",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
@@ -101,7 +101,7 @@ def create_cart_table():
             item_id INT REFERENCES test(item_id),
             amount VARCHAR(255),
             color VARCHAR(255),
-            model VARCHAR(255),
+            model VA                                     RCHAR(255),
             price VARCHAR(255),
             order_id VARCHAR(255),
             customer VARCHAR(255)

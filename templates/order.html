@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='order.css') }}">
-    <title>SQL Results</title>
+    <title>E-shop orders</title>
 </head>
 <body>
     <h1>Cap E-shop orders</h1>
@@ -53,6 +53,36 @@
         <button type = "submit">Retailer</button>
     </form>
 
+    <h3>Add Order Info</h3>
+      <form id="insertFormInfo">
+      
+        <label for = "order_id">order_id:</label>
+        <input type = "text" id = "order_id" name = "order_id" required><br>
+      
+          <label for = "item_id">item_id:</label>
+          <input type = "text" id = "item_id" name = "item_id" required><br>
+      
+          <label for = "amount">amount</label>
+          <input type = "text" id = "amount" name = "amount" required><br>
+
+          <label for = "customer">customer</label>
+          <input type = "text" id = "customer" name = "customer" required><br>
+      
+          <button type = "submit">Add Order Info</button>
+    </form>
+
+    <h3>Add Order Status</h3>
+    <form id="insertFormStatus">
+    
+        <label for = "order_id">order_id:</label>
+        <input type = "text" id = "order_id" name = "order_id" required><br>
+    
+        <label for = "order_status">order_status</label>
+        <input type = "text" id = "order_status" name = "order_status" required><br>
+    
+        <button type = "submit">Add Order Status</button>
+    </form>
+
     <h3>Remove Order Status</h3>
     <form id="removeOrderStatusForm" action="/remove_order_status" method="POST">
         <label for="place_in_stock">Place in Stock:</label>
@@ -98,6 +128,43 @@
         handleFormSubmission('removeOrderInfoForm');
     </script>
     
+    <script>
+        document.getElementById('insertFormInfo').addEventListener('submit', function(event) {
+          event.preventDefault();  // Prevent default form submission
+      
+          const formData = new FormData(this);
+          fetch('/insertInfo', {  // Send data to the correct endpoint
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('message').innerText = data.message;  // Display success message
+            this.reset();  // Reset form fields
+          })
+          .catch(error => {
+            document.getElementById('message').innerText = 'Error: ' + error;
+          });
+        });
+      
+        document.getElementById('insertFormStatus').addEventListener('submit', function(event) {
+          event.preventDefault();  // Prevent default form submission
+      
+          const formData = new FormData(this);
+          fetch('/insertStatus', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('message').innerText = data.message;  // Display success message
+            this.reset();  // Reset form fields
+          })
+          .catch(error => {
+            document.getElementById('message').innerText = 'Error: ' + error;
+          });
+        });
+      </script>
     
 </body>
 </html>

@@ -12,7 +12,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="13.60.187.38",
+        host="localhost",    #ändra till localhost eller 13.60.187.38
         port="5432"
     )
     return conn
@@ -82,6 +82,84 @@ def show_orders():
     conn.close()
     return render_template('order.html', order_results=order_results, order2_results=order2_results)
 
+@app.route('/show_stock')
+def show_stock():
+    conn = connect_db()
+    cur = conn.cursor()
+    stock = "SELECT * FROM stock"
+    cur.execute(stock)
+    stock_results = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return render_template('stock.html', stock_results=stock_results)
+
+#---------stock.html related---------------------------
+
+@app.route('/insertStock', methods=['POST'])
+def insertStock():
+    item_id = request.form['item_id']
+    amount = request.form['amount']
+
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    exists_query = """
+    SELECT EXISTS (
+        SELECT 1 FROM stock WHERE item_id = %s
+    )
+    """
+    cur.execute(exists_query, (item_id))
+    exists = cur.fetchone()[0]
+    if not exists is True:
+
+        insert_query = """
+            INSERT INTO stock (item_id, amount)
+            VALUES (%s, %s)
+        """
+        cur.execute(insert_query, (item_id, amount))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({"message": "inserted"})
+    else:
+
+        cur.execute("""
+            SELECT COALESCE(SUM(amount), 0) FROM stock WHERE item_id = %s
+            """, (item_id,))
+        
+        total_amount = cur.fetchone()[0]
+        new_amount = int(amount) + total_amount
+        addedupon_query = """
+        UPDATE stock
+        SET amount = %s
+        WHERE item_id = %s; 
+        """
+        cur.execute(addedupon_query, (new_amount, item_id))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({"message": "added upon existing"})
+
+@app.route('/update_stock_product', methods=['POST'])
+def update_stock_product():
+    item_id = request.form['item_id']
+    amount = request.form['amount']
+    conn = connect_db()
+    cur = conn.cursor()
+    remove_query = """
+        UPDATE stock
+        SET amount = %s
+        WHERE item_id = %s; 
+        """
+    cur.execute(remove_query, (amount, item_id))   
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"message": "updated amount"})
 
 #---------order.html related---------------------------
 
