@@ -25,19 +25,19 @@
         {% endfor %}
     </table>
 
-    <h3>Add to Stock</h3>
+    <h3>Add product to Stock or Add upon an existing porducts amount</h3>
     <form id="insertFormStock">
     
         <label for = "item_id">item_id:</label>
-        <input type = "text" id = "item_id" name = "item_id" required><br>
+        <input type = "text" id = "item_id" name = "item_id" required placeholder="0 &lt; x &lt; 7"><br>
 
         <label for = "amount">amount</label>
         <input type = "text" id = "amount" name = "amount" required><br>
     
-        <button type = "submit">Add Product to Stock</button>
+        <button type = "submit">Add Product or amount</button>
   </form>
 
-  <h3>Change stock product</h3>
+  <h3>Change amount on stock product</h3>
     <form id="updateStockForm" action="/update_stock_product" method="POST">
 
         <label for="item_id">item_id:</label>

@@ -12,7 +12,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="13.60.187.38",    #ändra till localhost eller 13.60.187.38
+        host="localhost",    #ändra till localhost eller 13.60.187.38
         port="5432"
     )
     return conn
@@ -22,6 +22,7 @@ def connect_db():
 @app.route('/')
 def home():
     return render_template('retailer.html')
+
 
 #------retailer.html related---------------------------
 
@@ -113,16 +114,21 @@ def insertStock():
     exists = cur.fetchone()[0]
     if not exists is True:
 
-        insert_query = """
-            INSERT INTO stock (item_id, amount)
-            VALUES (%s, %s)
-        """
-        cur.execute(insert_query, (item_id, amount))
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return jsonify({"message": "inserted"})
+        if int(item_id) > 0 and int(item_id) < 7:
+            insert_query = """
+                INSERT INTO stock (item_id, amount)
+                VALUES (%s, %s)
+            """
+            cur.execute(insert_query, (item_id, amount))
+            conn.commit()
+            cur.close()
+            conn.close()
+            return jsonify({"message": "inserted"})
+        else:
+            conn.commit()
+            cur.close()
+            conn.close()
+            return jsonify({"message": "no such Cap!"})
     else:
 
         cur.execute("""

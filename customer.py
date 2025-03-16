@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template, redirect, url_for, request, s
 import psycopg2
 from psycopg2 import extras  # Import extras explicitly
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt  # For password hashing
+from flask_bcrypt import Bcrypt  # For password hashing, run in terminal:::: pip install flask-bcrypt
 
 app = Flask(__name__)
 CORS(app) 
@@ -17,7 +17,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
+        host="localhost",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
@@ -233,42 +233,60 @@ def goto_retailer():
 def goto_comment():
     return render_template('comment.html')
 
+# ✅ API to get comments (Now includes item_id)
 @app.route('/get_comments', methods=['GET'])
 def get_comments():
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute("SELECT comment_id, comment, customer, created_at FROM comments ORDER BY created_at DESC")
+    
+    # Fetch comments with item_id
+    cur.execute("SELECT comment_id, comment, customer, item_id, created_at FROM comments ORDER BY created_at DESC")
     comments = cur.fetchall()
+
     cur.close()
     conn.close()
 
+    # Convert to JSON format
     comments_list = [
-        {"id": c[0], "text": c[1], "customer": c[2], "created_at": c[3].strftime("%Y-%m-%d %H:%M:%S")}
+        {
+            "id": c[0],
+            "text": c[1],
+            "customer": c[2],
+            "item_id": c[3],
+            "created_at": c[4].strftime("%Y-%m-%d %H:%M:%S")
+        }
         for c in comments
     ]
 
     return jsonify(comments_list)
 
-# API to add a comment
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
     data = request.json
     comment_text = data.get("comment")
     customer_name = data.get("customer")
+    item_id = data.get("cap")  # ✅ Now storing the checkbox value as item_id
 
-    if not comment_text or not customer_name:
-        return jsonify({"success": False, "message": "Missing comment or customer name"}), 400
+    # Ensure all required fields are provided
+    if not comment_text or not customer_name or not item_id:
+        return jsonify({"success": False, "message": "Missing comment, customer name, or item_id"}), 400
 
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO comments (comment, customer) VALUES (%s, %s) RETURNING comment_id",
-        (comment_text, customer_name)
-    )
-    comment_id = cur.fetchone()[0]
-    conn.commit()
-    cur.close()
-    conn.close()
+
+    try:
+        cur.execute(
+            "INSERT INTO comments (comment, customer, item_id) VALUES (%s, %s, %s) RETURNING comment_id",
+            (comment_text, customer_name, item_id)
+        )
+        comment_id = cur.fetchone()[0]
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 
     return jsonify({"success": True, "message": "Comment added!", "comment_id": comment_id})
 
