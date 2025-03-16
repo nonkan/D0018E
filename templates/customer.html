@@ -55,34 +55,33 @@
 <script src="{{ url_for('static', filename='customer.js') }}"></script>
 
 
+
+
+<div id="admin-section">
     <h3>Paths to other modules</h3>
-    <form action = "http://127.0.0.1:5001/" method = "get">
-        <button type = "submit">Retailer</button>
-    </form>
-    
-    <form action = "http://127.0.0.1:5002/" method = "get">
-        <button type = "submit">Producer</button>
+    <form action="http://127.0.0.1:5001/" method="get">
+        <button type="submit">Retailer</button>
     </form>
 
-    <form action = "{{url_for('goto_comment')}}" method = "get">
-        <button type = "submit">Comments</button>
+    <form action="http://127.0.0.1:5002/" method="get">
+        <button type="submit">Producer</button>
     </form>
+</div>
 
-<!--When i click on the checkout button i want to get redirected to?-->
-<!--
-    <script>
-        const designerUrl = "http://127.0.0.1:5001/";  // Ensure Flask properly fills this
-    </script>
-    
-    <script>
-        checkout.addEventListener('click', (event) => {
-            let positionClick = event.target;
-            if (positionClick.classList.contains('checkout')) {
-                window.location.href = designerUrl;
-            }
-        });
-    </script>
--->
+<form action="{{url_for('goto_comment')}}" method="get">
+    <button type="submit">Comments</button>
+</form>
+
+<script>
+    // Retrieve the role from sessionStorage
+    let userRole = sessionStorage.getItem("admin");
+
+    // If the user is not an admin, hide the admin section
+    if (userRole !== "admin") {
+        document.getElementById("admin-section").style.display = "none";
+    }
+</script>
+
 
 </body>
 </html>

@@ -28,14 +28,40 @@
                 // Store the username in sessionStorage
                 sessionStorage.setItem("username", username);
     
-                // Redirect to the customer page or wherever you want to go after login
-                console.log('Redirecting to customer page...');
-                window.location.href = "/customer_page";  // Ensure this is a valid route in your backend
+                // Here you should also store the admin status
+                fetch('/login', { // Send the login request to the backend
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        'username': username,
+                        'password': password
+                    }),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === "Invalid username or password") {
+                        alert("Invalid login credentials");
+                    } else {
+                        // Get the admin status from the session or some server response
+                        sessionStorage.setItem("admin", result.admin);  // You can store it directly if it's returned from the backend
+                        
+                        // Redirect to the customer page or wherever you want to go after login
+                        console.log('Redirecting to customer page...');
+                        window.location.href = "/customer_page";  // Ensure this is a valid route in your backend
+                    }
+                })
+                .catch(error => {
+                    alert("Login failed, please try again");
+                    console.log(error);
+                });
             } else {
                 alert("Please enter both username and password.");
             }
         });
     </script>
+    
     
 </body>
 </html>

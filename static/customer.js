@@ -169,6 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
 document.getElementById('logout-button').addEventListener('click', () => {
             // Remove the username from sessionStorage
             sessionStorage.removeItem("username");
+            sessionStorage.removeItem("admin");
+
 
             // Optionally, redirect to the login page after logout
             window.location.href = "/login";  // Redirect to the login page

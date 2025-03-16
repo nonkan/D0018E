@@ -65,29 +65,34 @@ def login():
         conn = connect_db()
         cur = conn.cursor()
 
-        # Check if user exists
-        cur.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+        # Check if user exists and retrieve admin status
+        cur.execute("SELECT username, admin FROM users WHERE username = %s AND password = %s", (username, password))
         user = cur.fetchone()
 
         cur.close()
         conn.close()
 
         if user:
-            session['username'] = username  # Store the user in session
-            return redirect(url_for('customer_page'))  # Corrected route name
+            session['username'] = user[0]  # Store username in session
+            session['admin'] = user[1]  # Store admin status in session
+            
+            return redirect(url_for('customer_page'))  # Redirect user after login
         else:
             return "Invalid username or password"
         
     return render_template('login.html')
 
+
 #customer page
 @app.route('/customer_page')
 def customer_page():
     if 'username' in session:
-        username = session['username'] # Get the logged in username
-        return render_template('customer.html', username=username)
+        username = session['username']  # Get the logged-in username
+        is_admin = session.get('admin', False)  # Get admin status from session
+
+        return render_template('customer.html', username=username, admin=is_admin)
     else:
-        return render_template('customer.html')
+        return redirect(url_for('login'))
     
 #logout
 #customer page
