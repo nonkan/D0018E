@@ -11,7 +11,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",     #ändra till localhost eller 13.60.187.38
+        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
         port="5432"
     )
     return conn

@@ -31,9 +31,11 @@ checkout.addEventListener('click', (event) =>{
 document.querySelector('.checkout').addEventListener('click', async (event) => {
     if (event.target.classList.contains('checkout')) {
         // Customer name input validation
-        let customerName = document.getElementById('customerName').value.trim();
-        if (!customerName) {
-            alert("Please enter your name before checking out.");
+        let username = sessionStorage.getItem('username');
+
+        if (!username) {
+            alert("Please log in before checking out.");
+            
             return;
         }
 
@@ -56,7 +58,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
             order_id: orderId,
             item_id: carts.map(item => item.product_id).join(", "), // List of item IDs
             amount: totalAmount,
-            customer: customerName
+            customer: username
         };
 
         // Prepare selected items for the server
@@ -64,14 +66,14 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
             item_id: cart.product_id,
             amount: cart.quantity,
             price: cart.price,  // Include the price for each item
-            customer: customerName
+            customer: username
         }));
 
         let shoppinginfo = carts.map(cart => ({
             item_id: cart.product_id,
             amount: cart.quantity,
             totalprice: cart.totalprice * cart.totalQuantity,  // Include the price for each item
-            customer: customerName
+            customer: username
         }));
 
         // Prepare the payload for both requests
@@ -83,7 +85,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         let customerData = {
             order_id: orderData.order_id,
             items: shoppinginfo,
-            customer: customerName
+            customer: username
         };
         console.log('Customer Data:', customerData);
 
@@ -127,35 +129,81 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
     }
 });
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
-    let nameInput = document.getElementById("customerName");
+    let username = sessionStorage.getItem("username");
+
+    if (username) {
+        let welcomeMessage = document.getElementById("welcome-message");
+        let loginLink = document.getElementById("login-link");
+        let logoutButton = document.getElementById("logout-button");
+
+        // If username exists in sessionStorage, update the welcome message and hide login link
+        if (welcomeMessage) {
+            welcomeMessage.textContent = `Welcome, ${username}!`;
+        }
+
+        // Hide login link since user is already logged in
+        if (loginLink) {
+            loginLink.style.display = "none";
+        }
+
+        // Show logout button since user is logged in
+        if (logoutButton) {
+            logoutButton.style.display = "inline-block";
+        }
+    } else {
+        // If no username in sessionStorage, show the login link
+        let welcomeMessage = document.getElementById("welcome-message");
+        if (welcomeMessage) {
+            welcomeMessage.textContent = "Please log in before checkingout.";
+        }
+
+        // Hide logout button
+        let logoutButton = document.getElementById("logout-button");
+        if (logoutButton) {
+            logoutButton.style.display = "none";
+        }
+    }
+});
+//----
+document.getElementById('logout-button').addEventListener('click', () => {
+            // Remove the username from sessionStorage
+            sessionStorage.removeItem("username");
+
+            // Optionally, redirect to the login page after logout
+            window.location.href = "/login";  // Redirect to the login page
+        });
+
+
+
+/*
+document.addEventListener("DOMContentLoaded", () => {
+    let nameInput = document.getElementById("username");
     let welcomeMessage = document.getElementById("welcome-message");
     let customerForm = document.getElementById("customer-form");
 
-    // Check sessionStorage for a stored name
-    if (sessionStorage.getItem("customerName")) {
-        sessionStorage.removeItem("customerName"); // Clear stored name on page load
+     // Check sessionStorage for a stored username
+     if (sessionStorage.getItem("username")) {
+        displayWelcomeMessage(sessionStorage.getItem("username"));
     }
 
     customerForm.addEventListener("submit", (event) => {
         event.preventDefault(); // Prevent form submission
 
-        let customerName = nameInput.value.trim();
-        if (customerName) {
-            sessionStorage.setItem("customerName", customerName); // Store name in sessionStorage
-            displayWelcomeMessage(customerName);
+        let username = nameInput.value.trim();
+        if (username) {
+            sessionStorage.setItem("username", username); // Store username in sessionStorage
+            displayWelcomeMessage(username);
         }
     });
 
-    function displayWelcomeMessage(name) {
-        welcomeMessage.textContent = `Welcome, ${name}!`;
+    function displayWelcomeMessage(username) {
+        welcomeMessage.textContent = `Welcome, ${username}!`;
         welcomeMessage.style.display = "block";
-        customerForm.style.display = "none"; // Hide form after name is entered
+        customerForm.style.display = "none"; // Hide form after username is entered
     }
 });
-
+*/
 
 const addDataToHTML = () => {
     // remove datas default from HTML

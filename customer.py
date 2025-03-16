@@ -1,26 +1,103 @@
-from flask import Flask, jsonify, render_template, redirect, url_for, request
+from flask import Flask, jsonify, render_template, redirect, url_for, request, session
 import psycopg2
 from psycopg2 import extras  # Import extras explicitly
 from flask_cors import CORS
+from flask_bcrypt import Bcrypt  # For password hashing
+
 app = Flask(__name__)
 CORS(app) 
+app.secret_key = 'tomten.txt'
+bcrypt = Bcrypt(app)
+
+
+
 #   Database setup
 def connect_db():
     conn = psycopg2.connect(
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",     #ändra till localhost eller 13.60.187.38
+        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
     return conn
-
+#login
 #   Home page for customer
 @app.route('/')
 def home():
     return render_template('customer.html')
 
+# Register Customer
+@app.route('/register', methods=['GET','POST'])
+def register():
+     if request.method == 'POST':   
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+        existing_user = cur.fetchone()
+
+        if existing_user:
+            return "Username already exist. Try another."
+        
+        #insert user
+
+        cur.execute("INSERT INTO users (username, password, admin) VALUES (%s, %s, %s)", (username, password, False))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return redirect(url_for('login'))
+     return render_template('register.html')
+
+
+# Login Customer
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':   
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = connect_db()
+        cur = conn.cursor()
+
+        # Check if user exists
+        cur.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+        user = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if user:
+            session['username'] = username  # Store the user in session
+            return redirect(url_for('customer_page'))  # Corrected route name
+        else:
+            return "Invalid username or password"
+        
+    return render_template('login.html')
+
+#customer page
+@app.route('/customer_page')
+def customer_page():
+    if 'username' in session:
+        username = session['username'] # Get the logged in username
+        return render_template('customer.html', username=username)
+    else:
+        return render_template('customer.html')
+    
+#logout
+#customer page
+@app.route('/logout')
+def logout():
+    session.pop('username',None)
+    
+    return redirect(url_for('login'))
+
+#----------------
 
 @app.route('/show_cart')
 def show_cart():

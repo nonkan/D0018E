@@ -19,11 +19,17 @@
             </div>
         </header>
     </div>
-    <form id="customer-form">
-        <input type="text" id="customerName" placeholder="Enter your name">
-        <button type="submit">Submit</button>
-    </form>
-    <div id="welcome-message" style="display: none;"></div>
+
+    <!-- Add this button to customer.html -->
+    <a href="{{ url_for('login') }}" class="btn btn-primary" id="login-link">Login</a>
+
+     <!-- Logout Button (visible only if username is in sessionStorage) -->
+     <a href="{{ url_for('logout') }}" class="btn btn-danger" id="logout-button" style="display:none;">Logout</a>
+
+
+    <div id="welcome-message">
+        <h2>Welcome, {{ username }}!</h2>
+    </div>
     
     
     
