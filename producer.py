@@ -11,7 +11,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",     #ändra till localhost eller 13.60.187.38
+        host="13.60.187.38",     #Ã¤ndra till localhost eller 13.60.187.38
         port="5432"
     )
     return conn
@@ -90,8 +90,8 @@ def produce():
     cur.execute(rows, (item_id,amount))
     count = cur.fetchone()[0]
 
-    if count <= 0:
-        order = "INSERT INTO producer VALUES(%s, %s) ON CONFLICT DO NOTHING"
+    if count == 0:
+        order = "INSERT INTO producer (item_id, amount) VALUES(%s, %s) ON CONFLICT DO NOTHING"
         cur.execute(order,(item_id, amount))
     
     select = "SELECT * FROM producer"
@@ -103,6 +103,44 @@ def produce():
     conn.close()
 
     return render_template('producer.html', produce=produce)
+
+@app.route('/SendToStock')
+def SendToStock():
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    select = "SELECT * FROM producer"
+    cur.execute(select)
+    results = cur.fetchall()
+    print (results)
+
+    item_id = results[0][1]
+    amount = results[0][2]
+
+    cur.execute("""
+            SELECT COALESCE(SUM(amount), 0) FROM stock WHERE item_id = %s
+            """, (item_id,))
+        
+    current_amount = cur.fetchone()[0]
+    total_amount = current_amount + int(amount)
+    
+    stock = "UPDATE stock SET amount = %s WHERE item_id = %s;"
+    cur.execute(stock, (total_amount, item_id,))
+
+    delete = "DELETE FROM producer"
+    cur.execute(delete)
+
+    delete2 = "DELETE FROM orders WHERE item_id = %s AND amount = %s;"
+    cur.execute(delete2, (item_id, amount))
+
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return render_template('producer.html')
+
 
 #-----------------------------------------------------------------------------------------
 
