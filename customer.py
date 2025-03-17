@@ -179,6 +179,66 @@ def update_price():
     conn.close()
 
     return jsonify({"message": "Price updated successfully!"}), 200
+#-------------------------------------Comments and grading-------------------------------------------------------
+@app.route('/api/grade', methods=['GET'])
+def get_grade_data():
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    # Fetch the average grade for each item
+    cur.execute("SELECT item_id, ROUND(AVG(grade), 2) FROM comments GROUP BY item_id")
+    comments_items = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+
+    # Convert to JSON format
+    grade_data = [{"item_id": item[0], "grade": item[1]} for item in comments_items]
+
+    return jsonify(grade_data)
+
+
+#add a grade
+@app.route('/api/update_grade', methods=['POST'])
+def update_grade():
+    data = request.get_json()
+    grade = data.get('grade')
+    item_id = data.get('item_id')
+    customer = data.get('customer')  # Customer identifier (e.g., username or ID)
+
+    if grade is None or item_id is None or customer is None:
+        return jsonify({"error": "Invalid input"}), 400  
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # Check if customer has already rated this item
+    cur.execute("SELECT grade FROM comments WHERE item_id = %s AND customer = %s", (item_id, customer))
+    existing_grade = cur.fetchone()
+
+    if existing_grade:
+        # Update existing grade if customer already rated
+        cur.execute("UPDATE comments SET grade = %s WHERE item_id = %s AND customer = %s", 
+                    (grade, item_id, customer))
+    else:
+        # Insert a new grade entry
+        cur.execute("INSERT INTO comments (item_id, grade, customer) VALUES (%s, %s, %s)", 
+                    (item_id, grade, customer))
+
+    # Recalculate the average grade
+    cur.execute("SELECT ROUND(AVG(grade), 2) FROM comments WHERE item_id = %s", (item_id,))
+    avg_grade = cur.fetchone()[0]
+
+    # Update the items table with the new average grade
+    cur.execute("UPDATE items SET grade = %s WHERE item_id = %s", (avg_grade, item_id))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Grade added/updated successfully!", "average_grade": avg_grade}), 200
+
+
 
 #-------------------------------------customer page-------------------------------------------------------
 

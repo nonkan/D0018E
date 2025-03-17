@@ -35,7 +35,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
             alert("Your shopping cart is empty. Add items before checking out.");
             return;
         }
-        
+
         // Customer name input validation
         let username = sessionStorage.getItem('username');
 
@@ -323,6 +323,7 @@ const addDataToHTML = async () => {
     // Fetch the stock data from the backend
     const stockData = await getStockData();
     const priceData = await getPriceData();
+    const gradeData = await getGradeData();
 
     // Add new data
     if (listProducts.length > 0) { // If data exists
@@ -330,10 +331,12 @@ const addDataToHTML = async () => {
             // Find stock info based on item_id
             const stockInfo = stockData.find(stock => stock.item_id === product.id);
             const priceInfo = priceData.find(price => price.item_id === product.id);
+            const gradeInfo = gradeData.find(grade => grade.item_id === product.id);
 
             // If stock info exists, get the amount; otherwise, set to 0
             const stockAmount = stockInfo ? stockInfo.amount : 0;
             const priceAmount = priceInfo ? priceInfo.price : 0;
+            const gradeAmount = gradeInfo ? gradeInfo.price : 0;
 
             let newProduct = document.createElement('div');
             newProduct.dataset.id = product.id;
@@ -342,7 +345,8 @@ const addDataToHTML = async () => {
                 <img src="${product.image}" alt="">
                 <h2>${product.name}</h2>
                 <div class="price">${priceAmount} SEK</div>
-                <div class="stock">Stock: ${stockAmount}</div>  
+                <div class="grade">Grade: ${gradeAmount}</div>
+                <div class="stock">Stock: ${stockAmount}</div>
                 <button class="addCart" ${stockAmount > 0 ? '' : 'disabled'}>
                     ${stockAmount > 0 ? 'Add To Cart' : 'Out of Stock'}
                 </button>
@@ -409,6 +413,67 @@ const getPriceData = async () => {
     const response = await fetch('/api/price'); // Fetch price data from the backend API
     const priceData = await response.json();  // Parse the JSON response
     return priceData;  // Return an array of price objects
+};
+
+
+//----------------------------Comments and grading------------------------------------------------
+// Function to fetch grade data and populate the dropdown
+const getgrade = async () => {
+    const response = await fetch('/api/grade');  // Get grade data from the backend
+    const gradeData = await response.json();    // Parse the JSON response
+
+    const selectElement = document.getElementById('item-id-grade');
+
+    // Populate the dropdown options with item_id from grade data
+    gradeData.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.item_id;  // Set the value of the option to item_id
+        option.textContent = `Item ID: ${item.item_id} (Grade: ${item.grade})`;  // Option text
+        selectElement.appendChild(option);
+    });
+};
+
+// Call the function to populate the dropdown when the page loads
+document.addEventListener('DOMContentLoaded', getgrade);
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle form submission
+    document.getElementById('modify-grade-form').addEventListener('submit', async (event) => {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+
+        // Get the form data
+        const itemId = document.getElementById('item-id-grade').value;
+        const newGrade = document.getElementById('new-grade').value;
+
+        // Make sure the data is valid
+        if (itemId && newGrade >= 0) {
+            // Send the data to the backend to update the grade
+            const response = await fetch('/api/update_grade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item_id: itemId, grade: newGrade })
+            });
+
+            // Handle the response from the backend
+            if (response.ok) {
+                alert('grade updated successfully!');
+                // Optionally, refresh the grade data or update the UI to reflect the change
+                addDataToHTML(); // Assuming this function refreshes the grade list
+            } else {
+                alert('Failed to update grade.');
+            }
+        } else {
+            alert('Please enter valid data.');
+        }
+    });
+});
+
+// Function to get grade data from the backend
+const getGradeData = async () => {
+    const response = await fetch('/api/grade'); // Fetch grade data from the backend API
+    const gradeData = await response.json();  // Parse the JSON response
+    return gradeData;  // Return an array of grade objects
 };
 
 //----------------------------------------------------------------------------------------------------

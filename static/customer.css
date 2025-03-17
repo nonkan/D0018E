@@ -79,17 +79,25 @@ header{
 }
 .listProduct .item .price{
     letter-spacing: 7px;
-    font-size: small;
+    font-size: large;
 }
 .listProduct .item button{
     background-color: darkslategrey;
     color: azure;
     padding: 10px 15px;
     border-radius: 20px;
-    margin-top: 10px;
+    margin-top: 15px;
     border: none;
     cursor: pointer;
 }
+/*grade-------------------------------------*/
+
+
+.listProduct .item .stock {
+    margin-left: 110px; 
+    margin-bottom: -40px;
+}
+
 
 /* This handles the tab of the shoppingcart */
 .cartTab{
