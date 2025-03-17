@@ -22,12 +22,13 @@ def connect_db():
         
     )
     return conn
-#login
+
 #   Home page for customer
 @app.route('/')
 def home():
     return render_template('customer.html')
 
+#---------------------------------------Login and register--------------------------------------------------
 # Register Customer
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -105,8 +106,81 @@ def logout():
     
     return redirect(url_for('login'))
 
-#----------------
+#-------------------------------------stock-------------------------------------------------------
+#get stock
+@app.route('/api/stock', methods=['GET'])
+def get_stock_data():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT item_id, amount FROM stock")  # Fetch stock data
+    stock_items = cur.fetchall()
+    cur.close()
+    conn.close()
 
+    # Convert the data into a list of dictionaries
+    stock_data = [{"item_id": item[0], "amount": item[1]} for item in stock_items]
+
+    # Return stock data as JSON
+    return jsonify(stock_data)
+
+#add to stock
+@app.route('/api/update_stock', methods=['POST'])
+def update_stock():
+    data = request.get_json()  # Get JSON data sent from the frontend
+    item_id = data.get('item_id')
+    new_amount = data.get('amount')
+
+    if item_id is None or new_amount is None:
+        return jsonify({"error": "Invalid input"}), 400  # Bad request if data is invalid
+
+    # Update the stock amount for the given item_id
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE stock SET amount = %s WHERE item_id = %s", (new_amount, item_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Stock updated successfully!"}), 200
+
+#-------------------------------------price-------------------------------------------------------
+#get price
+@app.route('/api/price', methods=['GET'])
+def get_preice_data():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT item_id, price FROM items")  # Fetch stock data
+    price_items = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    # Convert the data into a list of dictionaries
+    price_data = [{"item_id": item[0], "price": item[1]} for item in price_items]
+
+    # Return stock data as JSON
+    return jsonify(price_data)
+
+#add to stock
+@app.route('/api/update_price', methods=['POST'])
+def update_price():
+    data = request.get_json()  # Get JSON data sent from the frontend
+    price = data.get('price')
+    item_id = data.get('item_id')
+
+    if price is None or item_id is None:
+        return jsonify({"error": "Invalid input"}), 400  # Bad request if data is invalid
+
+    # Update the stock amount for the given item_id
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE items SET price = %s WHERE item_id = %s", (price, item_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"message": "Price updated successfully!"}), 200
+
+#-------------------------------------customer page-------------------------------------------------------
 @app.route('/show_cart')
 def show_cart():
     conn = connect_db()
@@ -186,7 +260,7 @@ def create_cart_table():
             item_id INT REFERENCES test(item_id),
             amount VARCHAR(255),
             color VARCHAR(255),
-            model VA                                     RCHAR(255),
+            model VARCHAR(255),
             price VARCHAR(255),
             order_id VARCHAR(255),
             customer VARCHAR(255)

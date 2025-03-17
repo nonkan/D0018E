@@ -26,7 +26,7 @@ checkout.addEventListener('click', (event) =>{
     }
 })*/
 
-
+//----------------------------------------checkout button--------------------------------
 
 document.querySelector('.checkout').addEventListener('click', async (event) => {
     if (event.target.classList.contains('checkout')) {
@@ -35,7 +35,6 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
 
         if (!username) {
             alert("Please log in before checking out.");
-            
             return;
         }
 
@@ -49,6 +48,27 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
 
         // Save the updated order_id to sessionStorage
         sessionStorage.setItem('order_id', orderId);
+
+        // Fetch the current stock data from the backend
+        const stockData = await getStockData(); // Ensure this function fetches the latest stock info from the backend
+
+        // Check if any item quantity exceeds the available stock
+        for (let cartItem of carts) {
+            // Find the product based on product_id
+            let product = listProducts.find(product => product.id == cartItem.product_id);
+
+            // If product is found, get the name, otherwise set to "Unknown Product"
+            let productName = product ? product.name : "Unknown Product"; 
+
+            let stockInfo = stockData.find(stock => stock.item_id == cartItem.product_id); // Find stock info by item_id
+            let stockAmount = stockInfo ? stockInfo.amount : 0;
+
+            // If the cart item quantity exceeds available stock, alert and stop the checkout
+            if (cartItem.quantity > stockAmount) {
+                alert(`You have selected more of the "${productName}" than are available in stock. Only ${stockAmount} left.`);
+                return;
+            }
+        }
 
         // Calculate totalAmount based on cart
         let totalAmount = carts.reduce((sum, item) => sum + item.quantity, 0);
@@ -118,16 +138,62 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
 
             if (retailerResult.success && customerResult.success) {
                 alert("Order placed successfully in both retailer and customer systems!");
-                window.location.href = "http://127.0.0.1:5000/"; // Redirect after checkout
-            } else {
-                alert("Error in processing the order: " + retailerResult.message + " / " + customerResult.message);
+
+                // Prepare data for stock update (items that were purchased)
+                let updatedStockData = carts.map(cart => ({
+                    product_id: cart.product_id,
+                    quantity: cart.quantity
+                }));
+
+                try {
+                    // Loop through each item and update stock
+                    for (let item of updatedStockData) {
+                        // Fetch the current stock data for the product_id
+                        let currentStockResponse = await fetch(`/api/stock`);
+                        let stockData = await currentStockResponse.json();
+
+                        // Find the stock info for the product_id
+                        let stockInfo = stockData.find(stock => stock.item_id == item.product_id);
+
+                        if (stockInfo) {
+                            let newAmount = stockInfo.amount - item.quantity; // Decrease stock by quantity
+
+                            // Send request to update stock
+                            const stockUpdateResponse = await fetch('/api/update_stock', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    item_id: item.product_id,
+                                    amount: newAmount
+                                })
+                            });
+
+                            const stockUpdateResult = await stockUpdateResponse.json();
+
+                            if (stockUpdateResult.message) {
+                                console.log(`Stock for product ID ${item.product_id} updated successfully.`);
+                            } else {
+                                console.error(`Error updating stock for product ID ${item.product_id}`);
+                            }
+                        }
+                    }
+
+                    // Redirect after successful checkout
+                    window.location.href = "http://127.0.0.1:5000/"; // Redirect to home or another page
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Can't update stock. Please check the console for details.");
+                }
             }
         } catch (error) {
-            console.error("Error:", error);
-            alert("Can't place order. Please check the console for details.");
+            console.error("Error during checkout:", error);
+            alert("There was an issue with the checkout. Please try again.");
         }
     }
 });
+
 
 document.addEventListener("DOMContentLoaded", () => {
     let username = sessionStorage.getItem("username");
@@ -165,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
-//----
+//--------------Log out button-------------------------------------
 document.getElementById('logout-button').addEventListener('click', () => {
             // Remove the username from sessionStorage
             sessionStorage.removeItem("username");
@@ -177,58 +243,169 @@ document.getElementById('logout-button').addEventListener('click', () => {
         });
 
 
+//-------------------------customer page-------------------------------------------------
 
-/*
-document.addEventListener("DOMContentLoaded", () => {
-    let nameInput = document.getElementById("username");
-    let welcomeMessage = document.getElementById("welcome-message");
-    let customerForm = document.getElementById("customer-form");
+//----------------stock---------------------------
 
-     // Check sessionStorage for a stored username
-     if (sessionStorage.getItem("username")) {
-        displayWelcomeMessage(sessionStorage.getItem("username"));
-    }
+// Function to fetch stock data and populate the dropdown
+const populateItemIds = async () => {
+    const response = await fetch('/api/stock');  // Get stock data from the backend
+    const stockData = await response.json();    // Parse the JSON response
 
-    customerForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Prevent form submission
+    const selectElement = document.getElementById('item-id');
 
-        let username = nameInput.value.trim();
-        if (username) {
-            sessionStorage.setItem("username", username); // Store username in sessionStorage
-            displayWelcomeMessage(username);
+    // Populate the dropdown options with item_id from stock data
+    stockData.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.item_id;  // Set the value of the option to item_id
+        option.textContent = `Item ID: ${item.item_id} (Amount: ${item.amount})`;  // Option text
+        selectElement.appendChild(option);
+    });
+};
+
+// Call the function to populate the dropdown when the page loads
+document.addEventListener('DOMContentLoaded', populateItemIds);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle form submission
+    document.getElementById('modify-stock-form').addEventListener('submit', async (event) => {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+
+        // Get the form data
+        const itemId = document.getElementById('item-id').value;
+        const newAmount = document.getElementById('new-amount').value;
+
+        // Make sure the data is valid
+        if (itemId && newAmount >= 0) {
+            // Send the data to the backend to update the stock
+            const response = await fetch('/api/update_stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item_id: itemId, amount: newAmount })
+            });
+
+            // Handle the response from the backend
+            if (response.ok) {
+                alert('Stock updated successfully!');
+                // Optionally, refresh the stock data or update the UI to reflect the change
+                addDataToHTML(); // Assuming this function refreshes the stock list
+            } else {
+                alert('Failed to update stock.');
+            }
+        } else {
+            alert('Please enter valid data.');
         }
     });
-
-    function displayWelcomeMessage(username) {
-        welcomeMessage.textContent = `Welcome, ${username}!`;
-        welcomeMessage.style.display = "block";
-        customerForm.style.display = "none"; // Hide form after username is entered
-    }
 });
-*/
 
-const addDataToHTML = () => {
-    // remove datas default from HTML
+
+
+// Function to get stock data from the backend
+const getStockData = async () => {
+    const response = await fetch('/api/stock'); // Fetch stock data from the backend API
+    const stockData = await response.json();  // Parse the JSON response
+    return stockData;  // Return an array of stock objects
+};
+
+// Function to add product data and stock information to HTML
+const addDataToHTML = async () => {
+    // Remove default data from HTML
     listProductHTML.innerHTML = '';
 
-        // add new datas
-        if(listProducts.length > 0) // if has data
-        {
-            listProducts.forEach(product => {
-                let newProduct = document.createElement('div');
-                newProduct.dataset.id = product.id;
-                newProduct.classList.add('item');
-                newProduct.innerHTML = `
-                    <img src="${product.image}" alt="">
-                    <h2>${product.name}</h2>
-                    <div class="price">${product.price}SEK</div>
-                    <button class="addCart">
-                        Add To Cart
-                    </button>`;
-                listProductHTML.appendChild(newProduct);
+    // Fetch the stock data from the backend
+    const stockData = await getStockData();
+    const priceData = await getPriceData();
+
+    // Add new data
+    if (listProducts.length > 0) { // If data exists
+        listProducts.forEach(product => {
+            // Find stock info based on item_id
+            const stockInfo = stockData.find(stock => stock.item_id === product.id);
+            const priceInfo = priceData.find(price => price.item_id === product.id);
+
+            // If stock info exists, get the amount; otherwise, set to 0
+            const stockAmount = stockInfo ? stockInfo.amount : 0;
+            const priceAmount = priceInfo ? priceInfo.price : 0;
+
+            let newProduct = document.createElement('div');
+            newProduct.dataset.id = product.id;
+            newProduct.classList.add('item');
+            newProduct.innerHTML = `
+                <img src="${product.image}" alt="">
+                <h2>${product.name}</h2>
+                <div class="price">${priceAmount} SEK</div>
+                <div class="stock">Stock: ${stockAmount}</div>  
+                <button class="addCart" ${stockAmount > 0 ? '' : 'disabled'}>
+                    ${stockAmount > 0 ? 'Add To Cart' : 'Out of Stock'}
+                </button>
+            `;
+            listProductHTML.appendChild(newProduct);
+        });
+    }
+};
+//-----------------------------Modify Price---------------------------------------------------
+// Function to fetch price data and populate the dropdown
+const getprice = async () => {
+    const response = await fetch('/api/price');  // Get price data from the backend
+    const priceData = await response.json();    // Parse the JSON response
+
+    const selectElement = document.getElementById('item-id-price');
+
+    // Populate the dropdown options with item_id from price data
+    priceData.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.item_id;  // Set the value of the option to item_id
+        option.textContent = `Item ID: ${item.item_id} (Price: ${item.price})`;  // Option text
+        selectElement.appendChild(option);
+    });
+};
+
+// Call the function to populate the dropdown when the page loads
+document.addEventListener('DOMContentLoaded', getprice);
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to handle form submission
+    document.getElementById('modify-price-form').addEventListener('submit', async (event) => {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+
+        // Get the form data
+        const itemId = document.getElementById('item-id-price').value;
+        const newPrice = document.getElementById('new-price').value;
+
+        // Make sure the data is valid
+        if (itemId && newPrice >= 0) {
+            // Send the data to the backend to update the price
+            const response = await fetch('/api/update_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item_id: itemId, price: newPrice })
             });
+
+            // Handle the response from the backend
+            if (response.ok) {
+                alert('price updated successfully!');
+                // Optionally, refresh the price data or update the UI to reflect the change
+                addDataToHTML(); // Assuming this function refreshes the price list
+            } else {
+                alert('Failed to update price.');
+            }
+        } else {
+            alert('Please enter valid data.');
         }
-}
+    });
+});
+
+// Function to get price data from the backend
+const getPriceData = async () => {
+    const response = await fetch('/api/price'); // Fetch price data from the backend API
+    const priceData = await response.json();  // Parse the JSON response
+    return priceData;  // Return an array of price objects
+};
+
+//----------------------------------------------------------------------------------------------------
 //This is when a user is clicking on a Add To Cart Button.
 listProductHTML.addEventListener('click', (event) => {
     let positionClick = event.target;
@@ -254,7 +431,7 @@ const addToCart = (product_id) => {
         carts[positionThisProductInCart].quantity = carts[positionThisProductInCart].quantity + 1;
     }
     addCartToHTML();
-   // addCartToMemory();
+   
 }
 const addCartToMemory = () => {
     sessionStorage.setItem('cart', JSON.stringify(carts));

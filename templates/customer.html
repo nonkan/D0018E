@@ -52,10 +52,38 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='customer.js') }}"></script>
+<!-- this section is for visability for admin or customer-->
+ <!-- Form to modify price for an item -->
+<div id="modify_price" class="price-modification-form">
+    <h3>Modify Price</h3>
+    <form id="modify-price-form">
+        <label for="item-id-price">Item ID:</label>
+        <select id="item-id-price" name="item-id-price">
+            
+        </select>
 
+        <label for="new-price">New Price:</label>
+        <input type="number" id="new-price" name="new-price" required min="0" step="0.01">
 
+        <button type="submit">Update Price</button>
+    </form>
+</div>
 
+ <!-- Form to modify stock for an item -->
+ <div id="modify_stock" class="stock-modification-form">
+    <h3>Modify Stock Amount</h3>
+    <form id="modify-stock-form">
+        <label for="item-id">Item ID:</label>
+        <select id="item-id" name="item-id">
+          
+        </select>
+
+        <label for="new-amount">New Stock Amount:</label>
+        <input type="number" id="new-amount" name="new-amount" required min="0">
+
+        <button type="submit">Update Stock</button>
+    </form>
+</div>
 
 <div id="admin-section">
     <h3>Paths to other modules</h3>
@@ -72,7 +100,13 @@
     <button type="submit">Comments</button>
 </form>
 
+<script src="{{ url_for('static', filename='customer.js') }}"></script>
+
+
+
+
 <script>
+//-------------------------Role------------------------------------
     // Retrieve the role from sessionStorage
     let userRole = sessionStorage.getItem("admin");
 
@@ -81,7 +115,13 @@
     // If the user is not an admin, hide the admin section
     if (!userRole) {
         document.getElementById("admin-section").style.display = "none";
+        document.getElementById("modify_stock").style.display = "none";
+        document.getElementById("modify_price").style.display = "none";
     }
+//------------------------Stock-------------------------------------
+    
+
+
 </script>
 
 
