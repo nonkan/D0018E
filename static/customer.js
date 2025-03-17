@@ -30,6 +30,12 @@ checkout.addEventListener('click', (event) =>{
 
 document.querySelector('.checkout').addEventListener('click', async (event) => {
     if (event.target.classList.contains('checkout')) {
+         // Check if the cart is empty
+         if (carts.length === 0) {
+            alert("Your shopping cart is empty. Add items before checking out.");
+            return;
+        }
+        
         // Customer name input validation
         let username = sessionStorage.getItem('username');
 

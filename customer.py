@@ -181,26 +181,10 @@ def update_price():
     return jsonify({"message": "Price updated successfully!"}), 200
 
 #-------------------------------------customer page-------------------------------------------------------
-@app.route('/show_cart')
-def show_cart():
-    conn = connect_db()
-    cur = conn.cursor()
-    query = "SELECT * FROM customer"
-    cur.execute(query)
-    results = cur.fetchall()
-    
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    #prints out on webpage stock.html
-    return render_template('customer.html', results=results)
-    #return ".."
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
-    data = request.json
+    data = request.get_json()
     items = data.get("items")
     customer_name = data.get("customer")
 
@@ -226,15 +210,15 @@ def add_to_cart(item_data):
     try:
         item_id = item_data["item_id"]
         amount = item_data["amount"]
-        total_price = item_data["price"]
+        total_price = item_data["total_price"]
         customer = item_data["customer"]
 
         conn = connect_db()
         cur = conn.cursor()
 
         insert_query = """
-            INSERT INTO shopping_cart (item_id, amount, color, model, price, order_id, customer)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO shopping_cart (item_id, amount, total_price, customer)
+            VALUES (%s, %s, %s, %s)
         """
         cur.execute(insert_query, (item_id, amount, total_price, customer))
 
