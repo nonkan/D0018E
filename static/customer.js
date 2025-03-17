@@ -437,7 +437,10 @@ const addCartToMemory = () => {
     sessionStorage.setItem('cart', JSON.stringify(carts));
 };
 
-const addCartToHTML = () => {
+const addCartToHTML = async () => {
+
+    const priceData = await getPriceData();
+
     listCartHTML.innerHTML = ''; // Clear cart display
     let totalQuantity = 0; // Variable for the total quantity in the cart
     let groupedItems = {}; // Object to group items by their name or product type
@@ -447,6 +450,10 @@ const addCartToHTML = () => {
         carts.forEach(cart => {
             let positionProduct = listProducts.findIndex((value) => value.id == cart.product_id);
             let info = listProducts[positionProduct];
+
+            // Find the corresponding price info
+            const priceInfo = priceData.find(price => price.item_id === info.id);
+            const priceAmount = priceInfo ? priceInfo.price : 0; // Get the price or default to 0
 
             // Add to grouped items (group by product name or type)
             if (!groupedItems[info.name]) {
@@ -467,7 +474,7 @@ const addCartToHTML = () => {
                 <div class="name">
                     ${info.name}
                 </div>
-                <div class="totalPrice">${info.price * cart.quantity} SEK</div>
+                <div class="totalPrice">${priceAmount * cart.quantity} SEK</div>
                 <div class="quantity">
                     <span class="minus"><</span>
                     <span>${cart.quantity}</span>
@@ -494,6 +501,7 @@ const addCartToHTML = () => {
         document.getElementById('total-items').textContent = 0;
     }
 };
+
 
 
 

@@ -248,8 +248,46 @@ def add_to_cart(item_data):
         print(f"Error adding item {item_id} to cart: {str(e)}")
 
 
+#-----------------------Adding items from json to the items table----------------------------
+@app.route('/api/add_items', methods=['POST'])
+def add_items():
+    data = request.get_json()  # Receive JSON data from frontend
+    print("Received data:", data)  # Debugging
+
+    if not data or not isinstance(data, list):
+        return jsonify({"error": "Invalid input"}), 400
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    try:
+        for item in data:
+            item_id = item.get('id')
+            color = item.get('color')
+            model = item.get('model')
+            price = item.get('price')
+
+            if None in (item_id, color, model, price):
+                continue  # Skip invalid entries
+
+            # Update the existing item in the items table
+            cur.execute("""
+                UPDATE items
+                SET color = %s, model = %s, price = %s
+                WHERE item_id = %s
+            """, (color, model, price, item_id))
+
+        conn.commit()
+        return jsonify({"message": "Items updated successfully!"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 
+#-----------------------------Dont know if this is needed--------------------------------------------------------------------
 @app.route('/create_cart_table')
 def create_cart_table():
     conn = connect_db()
