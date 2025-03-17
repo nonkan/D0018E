@@ -253,7 +253,7 @@ def refresh_orders():
 def clear_orders():
     conn = connect_db()
     cur = conn.cursor()
-    remove = "DELETE FROM retailer WHERE order_status = 'produce' OR order_status = 'complete';"
+    remove = "DELETE FROM retailer WHERE order_status = 'produced' OR order_status = 'complete';"
     cur.execute(remove)
     conn.commit()
     cur.close()

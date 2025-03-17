@@ -46,15 +46,14 @@ def get_orders():
     
     conn = connect_db()
     cur = conn.cursor()
-    rows = "SELECT COUNT(*) FROM orders"
-    cur.execute(rows)
+    rows = "SELECT COUNT(*) FROM orders WHERE order_id = %s"
+    cur.execute(rows, (order_id,))
     count = cur.fetchone()[0]
 
     if count > 0:
         stock = "SELECT * FROM orders WHERE order_id = %s"
         cur.execute(stock,(order_id,))
         results = cur.fetchall()
-
         
         conn.commit()
         cur.close()
@@ -63,6 +62,7 @@ def get_orders():
         return render_template('producer.html', results=results)
         
     else:
+        retailer.order_done(order_id)
         x = "Nothing to produce!"
 
         conn.commit()

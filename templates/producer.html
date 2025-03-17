@@ -27,7 +27,9 @@
     </table>
 
     <p>
-        {{x}}
+        {% if x %}
+            {{x}}
+        {% endif %}
     </p>
 
     <form action = "{{url_for('get_orders')}}" method = "get">
