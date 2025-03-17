@@ -10,10 +10,12 @@
 <body>
 
     <h2>Leave a Comment</h2>
-    <input type="text" id="customerName" placeholder="Your Name">
+    <p><strong>Logged in as:</strong> <span id="customerNameDisplay"></span></p>
+    <input type="hidden" id="customerName">
     <br>
     <textarea id="commentInput" placeholder="Write a comment..."></textarea>
     <br>
+    
     <label>Pick one Cap:</label><br>
 
     <input type="checkbox" name="option" value="1" id="opt1" onclick="onlyOne(this)">

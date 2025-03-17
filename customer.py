@@ -17,7 +17,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",     #ändra till localhost eller 13.60.187.38
+        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
@@ -76,12 +76,15 @@ def login():
             session['username'] = user[0]  # Store username in session
             session['admin'] = user[1]  # Store admin status in session
             
-            return redirect(url_for('customer_page'))  # Redirect user after login
+            # Return a JSON response with both the username and admin status
+            return jsonify({
+                'username': user[0],
+                'admin': user[1]
+            })
         else:
-            return "Invalid username or password"
+            return jsonify({'error': 'Invalid username or password'}), 401
         
     return render_template('login.html')
-
 
 #customer page
 @app.route('/customer_page')
@@ -290,7 +293,8 @@ def add_comment():
 
     return jsonify({"success": True, "message": "Comment added!", "comment_id": comment_id})
 
+
 #-----------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

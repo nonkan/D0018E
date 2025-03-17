@@ -76,8 +76,10 @@
     // Retrieve the role from sessionStorage
     let userRole = sessionStorage.getItem("admin");
 
+    userRole = (userRole === "true");
+
     // If the user is not an admin, hide the admin section
-    if (userRole !== "admin") {
+    if (!userRole) {
         document.getElementById("admin-section").style.display = "none";
     }
 </script>

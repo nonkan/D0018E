@@ -1,9 +1,32 @@
-document.addEventListener("DOMContentLoaded", fetchComments); // Load comments when page opens
+document.addEventListener("DOMContentLoaded", () => {
+    fetchComments(); // Load comments when page opens
+    setCustomerName(); // Set the logged-in username
+});
+
+function setCustomerName() {
+    let loggedInUser = sessionStorage.getItem("username"); // Retrieve username from sessionStorage
+
+    if (!loggedInUser) {
+        alert("You must be logged in to leave a comment.");
+        return;
+    }
+
+    document.getElementById("customerNameDisplay").textContent = loggedInUser; // Display the username
+    document.getElementById("customerName").value = loggedInUser; // Set hidden input value
+}
 
 async function fetchComments() {
     try {
         let response = await fetch('/get_comments');
+
+        console.log("Raw response:", response);  // Debugging step
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         let comments = await response.json();
+        console.log("Parsed comments:", comments);  // Debugging step
 
         let container = document.getElementById("commentsContainer");
         container.innerHTML = ""; // Clear previous comments
@@ -12,7 +35,6 @@ async function fetchComments() {
             let commentBox = document.createElement("div");
             commentBox.className = "comment-box";
 
-            // ✅ Convert item_id to a color name
             let colors = { "1": "Black", "2": "Blue", "3": "Green", "4": "Purple", "5": "Red", "6": "White" };
             let selectedCap = colors[comment.item_id] || "None";
 
@@ -34,11 +56,11 @@ function getSelectedCap() {
 
 async function addComment() {
     let commentText = document.getElementById("commentInput").value.trim();
-    let customerName = document.getElementById("customerName").value.trim();
+    let customerName = sessionStorage.getItem('username');
     let selectedItemId = getSelectedCap();  // ✅ Get selected item_id from checkbox
 
-    if (commentText === "" || customerName === "" || selectedItemId === "") {
-        alert("Please enter a name, a comment, and select an item.");
+    if (commentText === "" || selectedItemId === "") {
+        alert("Please enter a comment and select an item.");
         return;
     }
 
@@ -57,7 +79,6 @@ async function addComment() {
         if (result.success) {
             fetchComments(); // Reload comments
             document.getElementById("commentInput").value = ""; // Clear input
-            document.getElementById("customerName").value = ""; // Clear name field
             document.querySelectorAll('input[name="option"]').forEach(checkbox => checkbox.checked = false); // Uncheck all checkboxes
         } else {
             alert(result.message);
