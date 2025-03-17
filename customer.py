@@ -17,7 +17,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
+        host="localhost",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
@@ -392,14 +392,14 @@ def goto_retailer():
 def goto_comment():
     return render_template('comment.html')
 
-# ✅ API to get comments (Now includes item_id)
+# ✅ API to get comments (Now includes item_id and grade)
 @app.route('/get_comments', methods=['GET'])
 def get_comments():
     conn = connect_db()
     cur = conn.cursor()
     
-    # Fetch comments with item_id
-    cur.execute("SELECT comment_id, comment, customer, item_id, created_at FROM comments ORDER BY created_at DESC")
+    # Fetch comments with item_id and grade
+    cur.execute("SELECT comment_id, comment, customer, item_id, grade, created_at FROM comments ORDER BY created_at DESC")
     comments = cur.fetchall()
 
     cur.close()
@@ -412,31 +412,34 @@ def get_comments():
             "text": c[1],
             "customer": c[2],
             "item_id": c[3],
-            "created_at": c[4].strftime("%Y-%m-%d %H:%M:%S")
+            "grade": c[4],  # ✅ Now includes the grade
+            "created_at": c[5].strftime("%Y-%m-%d %H:%M:%S")
         }
         for c in comments
     ]
 
     return jsonify(comments_list)
 
+# ✅ API to add a new comment (Now includes grade)
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
     data = request.json
     comment_text = data.get("comment")
     customer_name = data.get("customer")
-    item_id = data.get("cap")  # ✅ Now storing the checkbox value as item_id
+    item_id = data.get("cap")  # ✅ Captures selected cap
+    grade = data.get("grade")  # ✅ Captures selected grade
 
     # Ensure all required fields are provided
-    if not comment_text or not customer_name or not item_id:
-        return jsonify({"success": False, "message": "Missing comment, customer name, or item_id"}), 400
+    if not comment_text or not customer_name or not item_id or not grade:
+        return jsonify({"success": False, "message": "Missing comment, customer name, item_id, or grade"}), 400
 
     conn = connect_db()
     cur = conn.cursor()
 
     try:
         cur.execute(
-            "INSERT INTO comments (comment, customer, item_id) VALUES (%s, %s, %s) RETURNING comment_id",
-            (comment_text, customer_name, item_id)
+            "INSERT INTO comments (comment, customer, item_id, grade) VALUES (%s, %s, %s, %s) RETURNING comment_id",
+            (comment_text, customer_name, item_id, grade)
         )
         comment_id = cur.fetchone()[0]
         conn.commit()

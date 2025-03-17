@@ -36,7 +36,20 @@
     <input type="checkbox" name="option" value="6" id="opt6" onclick="onlyOne(this)">
     <label for="opt6">White</label><br>
 
-    <button onclick="addComment()">Post Comment</button>
+    <form action="/action_page.php">
+        <label for="grade">Grade the product from 1 to 5:</label>
+        <input type="range" id="grade" name="grade" min="1" max="5" value="3" oninput="updateValue(this.value)">
+        <span id="rangeValue">3</span> <!-- Displays the default value -->
+        <br><br>
+      </form>
+      
+      <script>
+      function updateValue(value) {
+        document.getElementById('rangeValue').textContent = value;
+      }
+      </script>
+
+    <button onclick="addComment()">Post Comment and Grade</button>
 
     <h3>Comments:</h3>
     <div class="comments-container" id="commentsContainer"></div>
