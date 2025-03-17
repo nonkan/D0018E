@@ -36,23 +36,21 @@
     <input type="checkbox" name="option" value="6" id="opt6" onclick="onlyOne(this)">
     <label for="opt6">White</label><br>
 
-    <form action="/action_page.php">
-        <label for="grade">Grade the product from 1 to 5:</label>
-        <input type="range" id="grade" name="grade" min="1" max="5" value="3" oninput="updateValue(this.value)">
-        <span id="rangeValue">3</span> <!-- Displays the default value -->
-        <br><br>
-      </form>
-      
-      <script>
-      function updateValue(value) {
-        document.getElementById('rangeValue').textContent = value;
-      }
-      </script>
+    <label>Rate the item (1 - 5):</label><br>
+    <input type="radio" name="rating" value="1" id="rating1"><label for="rating1">1</label><br>
+    <input type="radio" name="rating" value="2" id="rating2"><label for="rating2">2</label><br>
+    <input type="radio" name="rating" value="3" id="rating3"><label for="rating3">3</label><br>
+    <input type="radio" name="rating" value="4" id="rating4"><label for="rating4">4</label><br>
+    <input type="radio" name="rating" value="5" id="rating5"><label for="rating5">5</label><br>
 
-    <button onclick="addComment()">Post Comment and Grade</button>
+
+    <button onclick="addComment()">Post Comment</button>
 
     <h3>Comments:</h3>
     <div class="comments-container" id="commentsContainer"></div>
 
+    <form action = "{{url_for('goto_customer')}}" method = "get">
+        <button type = "submit">Customer</button>
+    </form>
 </body>
 </html>

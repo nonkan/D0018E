@@ -17,7 +17,7 @@ def connect_db():
         dbname="d0018e_db",
         user="d0018e",
         password="pass",
-        host="localhost",     #ändra till localhost eller 13.60.187.38
+        host="13.60.187.38",     #ändra till localhost eller 13.60.187.38
         port="5432"
         
     )
@@ -179,64 +179,8 @@ def update_price():
     conn.close()
 
     return jsonify({"message": "Price updated successfully!"}), 200
-#-------------------------------------Comments and grading-------------------------------------------------------
-@app.route('/api/grade', methods=['GET'])
-def get_grade_data():
-    conn = connect_db()
-    cur = conn.cursor()
-    
-    # Fetch the average grade for each item
-    cur.execute("SELECT item_id, ROUND(AVG(grade), 2) FROM comments GROUP BY item_id")
-    comments_items = cur.fetchall()
-    
-    cur.close()
-    conn.close()
-
-    # Convert to JSON format
-    grade_data = [{"item_id": item[0], "grade": item[1]} for item in comments_items]
-
-    return jsonify(grade_data)
 
 
-#add a grade
-@app.route('/api/update_grade', methods=['POST'])
-def update_grade():
-    data = request.get_json()
-    grade = data.get('grade')
-    item_id = data.get('item_id')
-    customer = data.get('customer')  # Customer identifier (e.g., username or ID)
-
-    if grade is None or item_id is None or customer is None:
-        return jsonify({"error": "Invalid input"}), 400  
-
-    conn = connect_db()
-    cur = conn.cursor()
-
-    # Check if customer has already rated this item
-    cur.execute("SELECT grade FROM comments WHERE item_id = %s AND customer = %s", (item_id, customer))
-    existing_grade = cur.fetchone()
-
-    if existing_grade:
-        # Update existing grade if customer already rated
-        cur.execute("UPDATE comments SET grade = %s WHERE item_id = %s AND customer = %s", 
-                    (grade, item_id, customer))
-    else:
-        # Insert a new grade entry
-        cur.execute("INSERT INTO comments (item_id, grade, customer) VALUES (%s, %s, %s)", 
-                    (item_id, grade, customer))
-
-    # Recalculate the average grade
-    cur.execute("SELECT ROUND(AVG(grade), 2) FROM comments WHERE item_id = %s", (item_id,))
-    avg_grade = cur.fetchone()[0]
-
-    # Update the items table with the new average grade
-    cur.execute("UPDATE items SET grade = %s WHERE item_id = %s", (avg_grade, item_id))
-    
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"message": "Grade added/updated successfully!", "average_grade": avg_grade}), 200
 
 
 
@@ -296,7 +240,7 @@ def add_to_cart(item_data):
 @app.route('/api/add_items', methods=['POST'])
 def add_items():
     data = request.get_json()  # Receive JSON data from frontend
-    print("Received data:", data)  # Debugging
+    print("Received data add_items:", data)  # Debugging
 
     if not data or not isinstance(data, list):
         return jsonify({"error": "Invalid input"}), 400
@@ -331,41 +275,6 @@ def add_items():
         conn.close()
 
 
-#-----------------------------Dont know if this is needed--------------------------------------------------------------------
-@app.route('/create_cart_table')
-def create_cart_table():
-    conn = connect_db()
-    cur = conn.cursor()
-    create_table_query = """
-        CREATE TABLE shopping_cart (
-            shopping_cart_id SERIAL PRIMARY KEY,
-            item_id INT REFERENCES test(item_id),
-            amount VARCHAR(255),
-            color VARCHAR(255),
-            model VARCHAR(255),
-            price VARCHAR(255),
-            order_id VARCHAR(255),
-            customer VARCHAR(255)
-        )
-    """
-    cur.execute(create_table_query)
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"message": "Shopping cart table created!"})
-
-@app.route('/drop_cart_table')
-def drop_cart_table():
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute("DROP TABLE shopping_cart")
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"message": "Shopping cart table deleted!"})
-
 #-------------------------------routes between modules------------------------------------
 
 @app.route('/goto_customer')
@@ -385,73 +294,99 @@ def goto_retailer():
     return render_template('retailer.html')
 
 
-
-#---------------------------------------comments--------------------------------------------------
-
-@app.route('/goto_comment')
-def goto_comment():
-    return render_template('comment.html')
-
-# ✅ API to get comments (Now includes item_id and grade)
-@app.route('/get_comments', methods=['GET'])
-def get_comments():
+#-------------------------------------Comments and grading-------------------------------------------------------
+@app.route('/get_comments_and_grades', methods=['GET'])
+def get_comments_and_grades():
     conn = connect_db()
     cur = conn.cursor()
     
-    # Fetch comments with item_id and grade
+    # Fetch comments with item_id
     cur.execute("SELECT comment_id, comment, customer, item_id, grade, created_at FROM comments ORDER BY created_at DESC")
     comments = cur.fetchall()
+    
+    # Fetch the average grade for each item
+    cur.execute("SELECT item_id, ROUND(AVG(grade), 2) FROM comments GROUP BY item_id")
+    grade_data = cur.fetchall()
 
     cur.close()
     conn.close()
 
-    # Convert to JSON format
+    # Convert comments to JSON format
     comments_list = [
         {
             "id": c[0],
             "text": c[1],
             "customer": c[2],
             "item_id": c[3],
-            "grade": c[4],  # ✅ Now includes the grade
+            "rate": c[4],
             "created_at": c[5].strftime("%Y-%m-%d %H:%M:%S")
         }
         for c in comments
     ]
+    
+    # Convert grades to JSON format
+    grade_data_dict = {item[0]: item[1] for item in grade_data}
+
+    # Combine comments with grades
+    for comment in comments_list:
+        item_id = comment["item_id"]
+        comment["grade"] = grade_data_dict.get(item_id, None)
 
     return jsonify(comments_list)
 
-# ✅ API to add a new comment (Now includes grade)
-@app.route('/add_comment', methods=['POST'])
-def add_comment():
-    data = request.json
+@app.route('/add_or_update_comment', methods=['POST'])
+def add_or_update_comment():
+    data = request.get_json()
+    print("Received data add or update:", data)  # Debugging log
     comment_text = data.get("comment")
     customer_name = data.get("customer")
-    item_id = data.get("cap")  # ✅ Captures selected cap
-    grade = data.get("grade")  # ✅ Captures selected grade
+    item_id = data.get("item_id")  # Now storing the checkbox value as item_id
+    grade = data.get("grade")  # Getting grade here as well
 
     # Ensure all required fields are provided
-    if not comment_text or not customer_name or not item_id or not grade:
+    if not comment_text or not customer_name or not item_id or grade is None:
         return jsonify({"success": False, "message": "Missing comment, customer name, item_id, or grade"}), 400
 
     conn = connect_db()
     cur = conn.cursor()
 
     try:
-        cur.execute(
-            "INSERT INTO comments (comment, customer, item_id, grade) VALUES (%s, %s, %s, %s) RETURNING comment_id",
-            (comment_text, customer_name, item_id, grade)
-        )
-        comment_id = cur.fetchone()[0]
+        # Check if the customer has already commented on this item
+        cur.execute("SELECT comment_id FROM comments WHERE item_id = %s AND customer = %s", (item_id, customer_name))
+        existing_comment = cur.fetchone()
+
+        if existing_comment:
+            # If the customer has already commented, update the existing comment and grade
+            cur.execute("UPDATE comments SET comment = %s, grade = %s WHERE item_id = %s AND customer = %s",
+                        (comment_text, grade, item_id, customer_name))
+        else:
+            # If no previous comment exists, insert the new comment and grade
+            cur.execute("INSERT INTO comments (comment, customer, item_id, grade) VALUES (%s, %s, %s, %s) RETURNING comment_id",
+                        (comment_text, customer_name, item_id, grade))
+            comment_id = cur.fetchone()[0]
+
+        # Recalculate the average grade for the item
+        cur.execute("SELECT ROUND(AVG(grade), 2) FROM comments WHERE item_id = %s AND customer = %s", (item_id, customer_name))
+        avg_grade = cur.fetchone()[0]
+
+        # Update the item's average grade
+        cur.execute("UPDATE comments SET grade = %s WHERE item_id = %s AND customer = %s", (avg_grade, item_id, customer_name))
+
         conn.commit()
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
         cur.close()
         conn.close()
 
-    return jsonify({"success": True, "message": "Comment added!", "comment_id": comment_id})
+        return jsonify({"success": True, "message": "Comment and grade added/updated successfully!", "average_grade": avg_grade}), 200
 
+    except Exception as e:
+        print(f"Error: {e}")
+        conn.rollback()
+        return jsonify({"success": False, "message": "Internal server error"}), 500
+
+
+@app.route('/goto_comment')
+def goto_comment():
+    return render_template('comment.html')
 
 #-----------------------------------------------------------------------------------------
 
