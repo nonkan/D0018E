@@ -36,7 +36,7 @@
 
     <table border="1">
         <tr>
-            <th>place_in_stock</th>
+            <th>place_in_retailer</th>
             <th>order_id</th>
             <th>order_status</th>
         </tr>
@@ -54,13 +54,13 @@
     </form>
 
     <h3>Add Order Info</h3>
-      <form id="insertFormInfo">
+    <form id="insertFormInfo">
       
         <label for = "order_id">order_id:</label>
         <input type = "text" id = "order_id" name = "order_id" required><br>
       
           <label for = "item_id">item_id:</label>
-          <input type = "text" id = "item_id" name = "item_id" required><br>
+          <input type = "text" id = "item_id" name = "item_id" required placeholder="1-6"><br>
       
           <label for = "amount">amount</label>
           <input type = "text" id = "amount" name = "amount" required><br>
@@ -85,7 +85,7 @@
 
     <h3>Remove Order Status</h3>
     <form id="removeOrderStatusForm" action="/remove_order_status" method="POST">
-        <label for="place_in_stock">Place in Stock:</label>
+        <label for="place_in_stock">Place in Retailer:</label>
         <input type="text" id="place_in_stock" name="place_in_stock" required>
         <button type="submit">Remove Order Status</button>
     </form>

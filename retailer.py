@@ -292,7 +292,7 @@ def remove_order_status():
     conn = connect_db()
     cur = conn.cursor()
     remove_query = """
-        DELETE FROM retailer WHERE place_in_stock = %s
+        DELETE FROM retailer WHERE place_in_retailer = %s
         """
     cur.execute(remove_query, (place_in_stock,))   
     conn.commit()
