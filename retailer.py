@@ -197,16 +197,17 @@ def add_orders(order_id, items):
         conn = connect_db()
         cur = conn.cursor()
 
-        insert_query = """
-            INSERT INTO orders (order_id, item_id, amount, customer)
-            VALUES %s
-        """
+
+        #insert_query = """
+        #    INSERT INTO orders (order_id, item_id, amount, customer)
+        #    VALUES %s
+        #"""
         
         # Prepare a list of tuples for bulk insert
         values = [(order_id, item["item_id"], item["amount"], item["customer"]) for item in items]
 
         # Execute bulk insert
-        psycopg2.extras.execute_values(cur, insert_query, values)
+        #psycopg2.extras.execute_values(cur, insert_query, values)
 
         conn.commit()
         cur.close()
