@@ -18,13 +18,7 @@ iconCart.addEventListener('click', () => {
 closeCart.addEventListener('click', () => {
     body.classList.toggle('showCart')
 })
-/*
-checkout.addEventListener('click', (event) =>{
-    let positionClick = event.target;
-    if(positionClick.classList.contains('checkout')){
-        alert('1');
-    }
-})*/
+
 
 //----------------------------------------checkout button--------------------------------
 
@@ -118,14 +112,14 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
         try {
             // Send both requests at the same time using Promise.all
             const [retailerResponse, customerResponse] = await Promise.all([
-                fetch('http://127.0.0.1:5001/checkout', {
+                fetch('http://13.60.187.38:5001/checkout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(retailerData)
                 }),
-                fetch('http://127.0.0.1:5000/checkout', {
+                fetch('http://13.60.187.38:5000/checkout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -187,7 +181,7 @@ document.querySelector('.checkout').addEventListener('click', async (event) => {
                     }
 
                     // Redirect after successful checkout
-                    window.location.href = "http://127.0.0.1:5000/"; // Redirect to home or another page
+                    window.location.href = "http://13.60.187.38:5000/"; // Redirect to home or another page
                 } catch (error) {
                     console.error("Error:", error);
                     alert("Can't update stock. Please check the console for details.");
